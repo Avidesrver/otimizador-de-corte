@@ -1,930 +1,736 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Otimizador de Plano de Corte</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #ffffff;
-      --bg-sec: #f5f4f0;
-      --bg-ter: #efede8;
-      --text: #1a1a18;
-      --text-sec: #5f5e5a;
-      --text-ter: #888780;
-      --border: rgba(0,0,0,0.12);
-      --border-sec: rgba(0,0,0,0.22);
-      --radius-md: 8px;
-      --radius-lg: 12px;
-      --radius-xl: 16px;
-      --green-bg: #EAF3DE; --green-text: #3B6D11;
-      --amber-bg: #FAEEDA; --amber-text: #854F0B;
-      --red-bg: #FCEBEB; --red-text: #A32D2D;
-      --blue-bg: #E6F1FB; --blue-text: #185FA5;
-      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1c1c1a;
-        --bg-sec: #252523;
-        --bg-ter: #2e2e2b;
-        --text: #f0ede8;
-        --text-sec: #a8a69f;
-        --text-ter: #6b6a65;
-        --border: rgba(255,255,255,0.10);
-        --border-sec: rgba(255,255,255,0.18);
-        --green-bg: #173404; --green-text: #C0DD97;
-        --amber-bg: #412402; --amber-text: #FAC775;
-        --red-bg: #501313; --red-text: #F7C1C1;
-        --blue-bg: #042C53; --blue-text: #B5D4F4;
-      }
-    }
-
-    body {
-      font-family: var(--font);
-      background: var(--bg-ter);
-      color: var(--text);
-      min-height: 100vh;
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    header {
-      background: var(--bg);
-      border-bottom: 0.5px solid var(--border);
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    header .logo {
-      width: 36px; height: 36px;
-      background: var(--text);
-      border-radius: var(--radius-md);
-      display: flex; align-items: center; justify-content: center;
-    }
-    header .logo i { color: var(--bg); font-size: 20px; }
-    header h1 { font-size: 17px; font-weight: 500; color: var(--text); }
-    header span { font-size: 13px; color: var(--text-sec); }
-
-    main { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-
-    .section { margin-bottom: 1.5rem; }
-
-    .card {
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.25rem 1.5rem;
-    }
-
-    .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
-    .step-num {
-      width: 26px; height: 26px; border-radius: 50%;
-      background: var(--text); color: var(--bg);
-      font-size: 12px; font-weight: 500;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .step-title { font-size: 15px; font-weight: 500; }
-
-    .config-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .config-row label { font-size: 13px; color: var(--text-sec); display: block; margin-bottom: 4px; }
-    .config-row input {
-      width: 100%; padding: 8px 10px; font-size: 14px;
-      border: 0.5px solid var(--border-sec);
-      border-radius: var(--radius-md);
-      background: var(--bg); color: var(--text);
-      outline: none; transition: border-color 0.15s;
-    }
-    .config-row input:focus { border-color: var(--text); }
-
-    .hint { font-size: 12px; color: var(--text-ter); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
-
-    .tabs { display: flex; gap: 2px; margin-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
-    .tab {
-      padding: 8px 16px; font-size: 13px; cursor: pointer;
-      border: none; background: transparent; color: var(--text-sec);
-      border-bottom: 2px solid transparent; margin-bottom: -1px;
-      font-family: var(--font); transition: color 0.12s;
-    }
-    .tab:hover { color: var(--text); }
-    .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .upload-area {
-      border: 1.5px dashed var(--border-sec);
-      border-radius: var(--radius-lg);
-      padding: 2rem 1.5rem;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .upload-area:hover { background: var(--bg-sec); }
-    .upload-area.drag-over { background: var(--bg-sec); border-color: var(--text); }
-    .upload-icon { font-size: 36px; color: var(--text-ter); margin-bottom: 8px; display: block; }
-    .upload-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-    .upload-sub { font-size: 13px; color: var(--text-sec); margin-bottom: 14px; }
-
-    .btn {
-      background: transparent;
-      border: 0.5px solid var(--border-sec);
-      border-radius: var(--radius-md);
-      padding: 8px 16px; font-size: 14px;
-      cursor: pointer; color: var(--text);
-      font-family: var(--font);
-      display: inline-flex; align-items: center; gap: 6px;
-      transition: background 0.12s, transform 0.1s;
-    }
-    .btn:hover { background: var(--bg-sec); }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary {
-      background: var(--text); color: var(--bg);
-      border-color: var(--text); padding: 10px 24px; font-size: 15px;
-    }
-    .btn-primary:hover { opacity: 0.85; background: var(--text); }
-    .btn-sm { font-size: 12px; padding: 5px 10px; }
-
-    .template-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
-    .template-row span { font-size: 12px; color: var(--text-sec); }
-
-    #preview-area { margin-top: 1rem; display: none; }
-    #preview-area > p { font-size: 13px; color: var(--text-sec); margin-bottom: 8px; }
-
-    .tbl-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th {
-      font-weight: 500; font-size: 11px; color: var(--text-sec);
-      text-align: left; padding: 7px 10px;
-      border-bottom: 0.5px solid var(--border);
-      white-space: nowrap;
-    }
-    td {
-      padding: 7px 10px;
-      border-bottom: 0.5px solid var(--border);
-      color: var(--text);
-    }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--bg-sec); }
-
-    .badge {
-      display: inline-block; font-size: 11px;
-      padding: 2px 9px; border-radius: 99px; font-weight: 500;
-    }
-    .badge-ok { background: var(--green-bg); color: var(--green-text); }
-    .badge-warn { background: var(--amber-bg); color: var(--amber-text); }
-    .badge-bad { background: var(--red-bg); color: var(--red-text); }
-    .badge-neutral { background: var(--bg-sec); color: var(--text-sec); }
-
-    .calc-zone { text-align: center; padding: 1.5rem 0; }
-    .calc-status { font-size: 13px; color: var(--text-ter); margin-top: 8px; }
-
-    .results-section { display: none; }
-    .results-section.visible { display: block; }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 12px; margin-bottom: 1.5rem;
-    }
-    .metric {
-      background: var(--bg-sec); border-radius: var(--radius-md); padding: 1rem;
-    }
-    .metric-label { font-size: 12px; color: var(--text-sec); margin-bottom: 4px; }
-    .metric-val { font-size: 24px; font-weight: 500; color: var(--text); }
-    .metric-sub { font-size: 11px; color: var(--text-ter); margin-top: 2px; }
-
-    .plank-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-    .plank-label { font-size: 12px; color: var(--text-sec); min-width: 68px; text-align: right; flex-shrink: 0; }
-    .plank-svg-wrap { flex: 1; overflow: hidden; }
-
-    .legend {
-      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
-    }
-    .legend-item {
-      display: flex; align-items: center; gap: 5px;
-      font-size: 12px; color: var(--text-sec);
-    }
-    .legend-swatch {
-      width: 11px; height: 11px; border-radius: 2px; display: inline-block;
-    }
-
-    .manual-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr 44px;
-      gap: 6px; margin-bottom: 6px;
-    }
-    .manual-grid input {
-      padding: 6px 8px; font-size: 13px;
-      border: 0.5px solid var(--border-sec);
-      border-radius: var(--radius-md);
-      background: var(--bg); color: var(--text);
-      width: 100%; font-family: var(--font);
-      outline: none;
-    }
-    .manual-grid input:focus { border-color: var(--text); }
-    .manual-header { font-size: 11px; color: var(--text-sec); padding: 0 2px; display: flex; align-items: flex-end; }
-
-    .results-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; justify-content: flex-end; }
-
-    footer {
-      text-align: center; padding: 2rem;
-      font-size: 12px; color: var(--text-ter);
-      border-top: 0.5px solid var(--border);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano de Corte</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f5f4f0;--bg3:#eeedea;
+  --tx:#1a1a18;--tx2:#5f5e5a;--tx3:#9b9a96;
+  --br:rgba(0,0,0,.11);--br2:rgba(0,0,0,.20);
+  --r:8px;--rl:12px;
+  --green-bg:#EAF3DE;--green-tx:#3B6D11;
+  --amber-bg:#FAEEDA;--amber-tx:#854F0B;
+  --red-bg:#FCEBEB;--red-tx:#A32D2D;
+  --blue-bg:#E6F1FB;--blue-tx:#185FA5;
+  --f:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
+  --tx:#f0ede8;--tx2:#a8a69f;--tx3:#6b6a65;
+  --br:rgba(255,255,255,.09);--br2:rgba(255,255,255,.17);
+  --green-bg:#173404;--green-tx:#C0DD97;
+  --amber-bg:#412402;--amber-tx:#FAC775;
+  --red-bg:#501313;--red-tx:#F7C1C1;
+  --blue-bg:#042C53;--blue-tx:#B5D4F4;
+}}
+body{font-family:var(--f);background:var(--bg3);color:var(--tx);min-height:100vh;font-size:15px;line-height:1.6}
+header{background:var(--bg);border-bottom:.5px solid var(--br);padding:.9rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.logo{width:34px;height:34px;background:var(--tx);border-radius:var(--r);display:flex;align-items:center;justify-content:center}
+.logo i{color:var(--bg);font-size:19px}
+header h1{font-size:16px;font-weight:500}
+header span{font-size:12px;color:var(--tx2)}
+main{max-width:900px;margin:0 auto;padding:1.5rem 1.25rem 4rem}
+.card{background:var(--bg);border:.5px solid var(--br);border-radius:var(--rl);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.card-title{font-size:14px;font-weight:500;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.badge-num{width:22px;height:22px;border-radius:50%;background:var(--tx);color:var(--bg);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.field label{font-size:12px;color:var(--tx2);display:block;margin-bottom:3px}
+.field input{width:100%;padding:7px 10px;font-size:14px;border:.5px solid var(--br2);border-radius:var(--r);background:var(--bg);color:var(--tx);font-family:var(--f);outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--tx)}
+.hint{font-size:12px;color:var(--tx3);display:flex;align-items:center;gap:4px;margin-top:6px}
+.sep{height:.5px;background:var(--br);margin:1rem 0}
+.row-grid{display:grid;gap:8px;margin-bottom:8px;align-items:center}
+.row-grid.tabua-row{grid-template-columns:2fr 1fr 1fr 1fr 36px}
+.row-grid.painel-row{grid-template-columns:2fr 1fr 1fr 1fr 36px}
+.row-grid input{padding:6px 9px;font-size:13px;border:.5px solid var(--br2);border-radius:var(--r);background:var(--bg);color:var(--tx);font-family:var(--f);outline:none;width:100%}
+.row-grid input:focus{border-color:var(--tx)}
+.col-head{font-size:11px;color:var(--tx2)}
+.btn{background:transparent;border:.5px solid var(--br2);border-radius:var(--r);padding:7px 14px;font-size:13px;cursor:pointer;color:var(--tx);font-family:var(--f);display:inline-flex;align-items:center;gap:5px;transition:background .12s,transform .1s}
+.btn:hover{background:var(--bg2)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--tx);color:var(--bg);border-color:var(--tx);padding:10px 28px;font-size:15px}
+.btn-primary:hover{opacity:.85;background:var(--tx)}
+.btn-sm{font-size:12px;padding:5px 10px}
+.btn-icon{padding:5px 7px;border-radius:var(--r)}
+.calc-zone{text-align:center;padding:1.25rem 0}
+.calc-status{font-size:12px;color:var(--tx3);margin-top:6px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem}
+.metric{background:var(--bg2);border-radius:var(--r);padding:1rem}
+.metric-label{font-size:11px;color:var(--tx2);margin-bottom:4px}
+.metric-val{font-size:22px;font-weight:500}
+.metric-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.results{display:none}
+.results.on{display:block}
+.tabs{display:flex;gap:2px;border-bottom:.5px solid var(--br);margin-bottom:1rem}
+.tab{padding:7px 14px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:var(--f)}
+.tab:hover{color:var(--tx)}
+.tab.active{color:var(--tx);border-bottom-color:var(--tx);font-weight:500}
+.tc{display:none}
+.tc.on{display:block}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:11px;color:var(--tx2);font-weight:500;text-align:left;padding:6px 10px;border-bottom:.5px solid var(--br);white-space:nowrap}
+td{padding:7px 10px;border-bottom:.5px solid var(--br);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500}
+.ok{background:var(--green-bg);color:var(--green-tx)}
+.warn{background:var(--amber-bg);color:var(--amber-tx)}
+.bad{background:var(--red-bg);color:var(--red-tx)}
+.neutral{background:var(--bg2);color:var(--tx2)}
+.vis-wrap{overflow-x:auto;padding-bottom:4px}
+.plank-vis-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.plank-vis-label{font-size:11px;color:var(--tx2);min-width:80px;text-align:right;flex-shrink:0}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2)}
+.leg-sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex-shrink:0}
+footer{text-align:center;padding:2rem;font-size:12px;color:var(--tx3);border-top:.5px solid var(--br)}
+.section-sub{font-size:12px;color:var(--tx2);margin-bottom:.75rem}
+.actions-row{display:flex;justify-content:flex-end;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+</style>
 </head>
 <body>
-
 <header>
-  <div class="logo"><i class="ti ti-cut"></i></div>
+  <div class="logo"><i class="ti ti-ruler-measure"></i></div>
   <div>
-    <h1>Otimizador de Plano de Corte</h1>
-    <span>Minimize desperdício de madeira</span>
+    <h1>Plano de Corte</h1>
+    <span>Otimizador de aproveitamento de madeira</span>
   </div>
 </header>
-
 <main>
 
-  <!-- STEP 1: Parâmetros -->
-  <div class="section card">
-    <div class="step-header">
-      <div class="step-num">1</div>
-      <p class="step-title">Parâmetros da serra e da tábua</p>
-    </div>
-    <div class="config-row">
-      <div>
-        <label>Constante de serra (mm)</label>
-        <input type="number" id="saw-kerf" value="3" min="0" step="0.5">
-      </div>
-      <div>
-        <label>Recorte lateral — cada lado (mm)</label>
-        <input type="number" id="side-cut" value="3" min="0" step="0.5">
-      </div>
-      <div>
-        <label>Largura da tábua (mm)</label>
-        <input type="number" id="plank-w" value="101.6" min="1" step="0.1">
-      </div>
-      <div>
-        <label>Comprimento da tábua (mm)</label>
-        <input type="number" id="plank-l" value="2600" min="1">
-      </div>
-    </div>
-    <p class="hint">
-      <i class="ti ti-info-circle"></i>
-      Largura útil = largura da tábua − (2 × recorte lateral). A lateral da tábua pode ficar na lateral do painel — a CNC acerta na etapa seguinte.
-    </p>
+<!-- TÁBUAS DISPONÍVEIS -->
+<div class="card">
+  <div class="card-title"><div class="badge-num">1</div>Tábuas disponíveis (matéria-prima)</div>
+  <div class="row-grid tabua-row" style="margin-bottom:4px">
+    <span class="col-head">Nome / referência</span>
+    <span class="col-head">Largura (mm)</span>
+    <span class="col-head">Comprimento (mm)</span>
+    <span class="col-head">Qtd disponível</span>
+    <span></span>
   </div>
+  <div id="tabua-rows"></div>
+  <button class="btn btn-sm" onclick="addTabuaRow()"><i class="ti ti-plus"></i> Adicionar tábua</button>
+  <div class="hint"><i class="ti ti-info-circle"></i> A constante de serra (3mm) só é aplicada quando a tábua é dividida em tacos. Não há desconto lateral.</div>
+</div>
 
-  <!-- STEP 2: Painéis -->
-  <div class="section card">
-    <div class="step-header">
-      <div class="step-num">2</div>
-      <p class="step-title">Lista de painéis</p>
-    </div>
-
-    <div class="tabs" id="input-tabs">
-      <button class="tab active" onclick="switchTab('import')">Importar planilha</button>
-      <button class="tab" onclick="switchTab('manual')">Entrada manual</button>
-    </div>
-
-    <!-- Importar -->
-    <div id="tab-import" class="tab-content active">
-      <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <i class="ti ti-file-spreadsheet upload-icon"></i>
-        <p class="upload-title">Arraste o arquivo aqui ou clique para selecionar</p>
-        <p class="upload-sub">Formatos aceitos: .xlsx, .xls, .csv</p>
-        <button class="btn" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
-          <i class="ti ti-upload"></i> Escolher arquivo
-        </button>
-      </div>
-      <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display:none">
-      <div class="template-row">
-        <span>Precisa de modelo?</span>
-        <button class="btn btn-sm" onclick="downloadTemplate()">
-          <i class="ti ti-download"></i> Baixar planilha modelo
-        </button>
-      </div>
-      <p class="hint" style="margin-top:10px">
-        <i class="ti ti-table"></i>
-        Colunas esperadas: <strong>produto</strong>, <strong>largura_painel</strong> (mm), <strong>comprimento_painel</strong> (mm), <strong>espessura</strong> (mm), <strong>qtd</strong>
-      </p>
-
-      <div id="preview-area">
-        <p>Prévia dos dados importados:</p>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr id="preview-head"></tr></thead>
-            <tbody id="preview-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Manual -->
-    <div id="tab-manual" class="tab-content">
-      <div class="manual-grid" style="margin-bottom:4px">
-        <span class="manual-header">Produto</span>
-        <span class="manual-header">Largura (mm)</span>
-        <span class="manual-header">Comp. (mm)</span>
-        <span class="manual-header">Qtd</span>
-        <span></span>
-      </div>
-      <div id="manual-rows"></div>
-      <button class="btn btn-sm" style="margin-top:8px" onclick="addManualRow()">
-        <i class="ti ti-plus"></i> Adicionar painel
-      </button>
-    </div>
+<!-- PAINÉIS DESEJADOS -->
+<div class="card">
+  <div class="card-title"><div class="badge-num">2</div>Painéis a produzir</div>
+  <div class="row-grid painel-row" style="margin-bottom:4px">
+    <span class="col-head">Nome do produto</span>
+    <span class="col-head">Largura do painel (mm)</span>
+    <span class="col-head">Comprimento do painel (mm)</span>
+    <span class="col-head">Quantidade</span>
+    <span></span>
   </div>
-
-  <!-- STEP 3: Calcular -->
-  <div class="section calc-zone">
-    <button class="btn btn-primary" id="calc-btn" onclick="calculate()" disabled>
-      <i class="ti ti-cut"></i> Calcular plano de corte
-    </button>
-    <p class="calc-status" id="calc-status">Importe ou adicione painéis para continuar</p>
+  <div id="painel-rows"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">
+    <button class="btn btn-sm" onclick="addPainelRow()"><i class="ti ti-plus"></i> Adicionar painel</button>
+    <button class="btn btn-sm" onclick="document.getElementById('file-input').click()"><i class="ti ti-upload"></i> Importar planilha</button>
+    <button class="btn btn-sm" onclick="downloadTemplate()"><i class="ti ti-download"></i> Baixar modelo</button>
+    <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile(event)">
   </div>
+  <div class="hint"><i class="ti ti-info-circle"></i> Colunas da planilha: <strong>produto</strong>, <strong>largura_painel</strong>, <strong>comprimento_painel</strong>, <strong>qtd</strong></div>
+</div>
 
-  <!-- RESULTADOS -->
-  <div id="results" class="results-section">
+<!-- PARÂMETROS -->
+<div class="card">
+  <div class="card-title"><div class="badge-num">3</div>Parâmetros de corte</div>
+  <div class="grid2">
+    <div class="field"><label>Constante de serra (mm)</label><input type="number" id="kerf" value="3" min="0" step="0.5"></div>
+    <div class="field"><label>Tolerância de montagem (mm)</label><input type="number" id="tol" value="0" min="0" step="0.5"></div>
+  </div>
+</div>
 
-    <div class="metrics" id="metrics-grid"></div>
+<!-- CALCULAR -->
+<div class="calc-zone">
+  <button class="btn btn-primary" id="calc-btn" onclick="calcular()" disabled>
+    <i class="ti ti-calculator"></i> Calcular plano de corte
+  </button>
+  <p class="calc-status" id="calc-status">Adicione tábuas e painéis para continuar</p>
+</div>
 
-    <div class="card section">
-      <div class="results-actions">
-        <button class="btn btn-sm" onclick="exportResults()">
-          <i class="ti ti-download"></i> Exportar resultados (.xlsx)
-        </button>
-      </div>
-
-      <div class="tabs" id="result-tabs">
-        <button class="tab active" onclick="switchResultTab('visual')">Visualização</button>
-        <button class="tab" onclick="switchResultTab('table')">Tacos</button>
-        <button class="tab" onclick="switchResultTab('summary')">Por produto</button>
-      </div>
-
-      <div id="rtab-visual" class="tab-content active">
-        <div id="planks-vis"></div>
-        <div class="legend" id="vis-legend"></div>
-      </div>
-
-      <div id="rtab-table" class="tab-content">
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>Tábua</th><th>Taco</th><th>Produto</th>
-              <th>Largura (mm)</th><th>Comp. (mm)</th><th>Usa lateral?</th>
-            </tr></thead>
-            <tbody id="cuts-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="rtab-summary" class="tab-content">
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>Produto</th><th>Largura painel</th><th>Qtd painéis</th>
-              <th>Tábuas usadas</th><th>Mínimo teórico</th><th>Aproveitamento</th>
-            </tr></thead>
-            <tbody id="summary-body"></tbody>
-          </table>
-        </div>
-      </div>
+<!-- RESULTADOS -->
+<div class="results" id="results">
+  <div class="metrics" id="metrics"></div>
+  <div class="card">
+    <div class="actions-row">
+      <button class="btn btn-sm" onclick="exportar()"><i class="ti ti-download"></i> Exportar (.xlsx)</button>
     </div>
-
+    <div class="tabs">
+      <button class="tab active" onclick="tab('vis')">Visualização</button>
+      <button class="tab" onclick="tab('tacos')">Tacos por tábua</button>
+      <button class="tab" onclick="tab('consumo')">Consumo de tábuas</button>
+      <button class="tab" onclick="tab('montagem')">Montagem dos painéis</button>
+    </div>
+    <div id="tc-vis" class="tc on"></div>
+    <div id="tc-tacos" class="tc"><div class="tbl-wrap" style="overflow-x:auto"><table><thead><tr><th>Tábua (tipo)</th><th>#</th><th>Taco</th><th>Painel</th><th>Largura taco (mm)</th><th>Comp. taco (mm)</th><th>Posição no painel</th></tr></thead><tbody id="tb-tacos"></tbody></table></div></div>
+    <div id="tc-consumo" class="tc"><div style="overflow-x:auto"><table><thead><tr><th>Tipo de tábua</th><th>Largura</th><th>Comprimento</th><th>Estoque</th><th>Usar</th><th>Sobra estoque</th></tr></thead><tbody id="tb-consumo"></tbody></table></div></div>
+    <div id="tc-montagem" class="tc"><div style="overflow-x:auto"><table><thead><tr><th>Painel</th><th>Largura alvo</th><th>Comp. alvo</th><th>Qtd</th><th>Composição de tacos</th><th>Largura real</th><th>Diferença</th></tr></thead><tbody id="tb-montagem"></tbody></table></div></div>
   </div>
+</div>
 
 </main>
-
-<footer>Otimizador de Plano de Corte — algoritmo First Fit Decreasing</footer>
+<footer>Plano de Corte — algoritmo de otimização First Fit Decreasing</footer>
 
 <script>
-  let panels = [];
-  let calcResults = null;
-  let manualRowCount = 0;
+// ── STATE ──
+let tabuaRows = [], painelRows = [], lastResult = null;
+let tRc = 0, pRc = 0;
 
-  const COLORS = [
-    '#185FA5','#0F6E56','#854F0B','#993556',
-    '#3B6D11','#534AB7','#993C1D','#5F5E5A',
-    '#378ADD','#1D9E75','#BA7517','#D4537E'
-  ];
+// ── TÁBUAS ──
+function addTabuaRow(nome='', larg='', comp='', qtd='') {
+  tRc++;
+  const id = tRc;
+  const d = document.createElement('div');
+  d.id = 'tr-'+id; d.className = 'row-grid tabua-row';
+  d.innerHTML = `
+    <input type="text" placeholder="ex: Pinus 100mm" value="${nome}" oninput="syncState()">
+    <input type="number" placeholder="ex: 101.6" value="${larg}" min="1" step="0.1" oninput="syncState()">
+    <input type="number" placeholder="ex: 2600" value="${comp}" min="1" oninput="syncState()">
+    <input type="number" placeholder="ex: 20" value="${qtd}" min="1" oninput="syncState()">
+    <button class="btn btn-icon btn-sm" onclick="removeRow('tr-${id}');syncState()" title="Remover"><i class="ti ti-trash"></i></button>`;
+  document.getElementById('tabua-rows').appendChild(d);
+  syncState();
+}
 
-  /* ─── Tabs ─── */
-  function switchTab(t) {
-    document.querySelectorAll('#input-tabs .tab').forEach((b,i) => {
-      b.classList.toggle('active', (t==='import'&&i===0)||(t==='manual'&&i===1));
-    });
-    document.getElementById('tab-import').classList.toggle('active', t==='import');
-    document.getElementById('tab-manual').classList.toggle('active', t==='manual');
-  }
+// ── PAINÉIS ──
+function addPainelRow(nome='', larg='', comp='', qtd='') {
+  pRc++;
+  const id = pRc;
+  const d = document.createElement('div');
+  d.id = 'pr-'+id; d.className = 'row-grid painel-row';
+  d.innerHTML = `
+    <input type="text" placeholder="ex: Painel gaveta" value="${nome}" oninput="syncState()">
+    <input type="number" placeholder="ex: 290" value="${larg}" min="1" step="0.1" oninput="syncState()">
+    <input type="number" placeholder="ex: 410" value="${comp}" min="1" oninput="syncState()">
+    <input type="number" placeholder="ex: 4" value="${qtd}" min="1" oninput="syncState()">
+    <button class="btn btn-icon btn-sm" onclick="removeRow('pr-${id}');syncState()" title="Remover"><i class="ti ti-trash"></i></button>`;
+  document.getElementById('painel-rows').appendChild(d);
+  syncState();
+}
 
-  function switchResultTab(t) {
-    const ids = ['visual','table','summary'];
-    document.querySelectorAll('#result-tabs .tab').forEach((b,i) => {
-      b.classList.toggle('active', ids[i]===t);
-    });
-    ids.forEach(id => {
-      document.getElementById('rtab-'+id).classList.toggle('active', id===t);
-    });
-  }
+function removeRow(id){ const el=document.getElementById(id); if(el)el.remove(); }
 
-  /* ─── Manual rows ─── */
-  function addManualRow() {
-    manualRowCount++;
-    const id = manualRowCount;
-    const row = document.createElement('div');
-    row.id = 'mrow-'+id;
-    row.className = 'manual-grid';
-    row.innerHTML = `
-      <input type="text" placeholder="Nome do produto" oninput="readManual()">
-      <input type="number" placeholder="ex: 290" oninput="readManual()">
-      <input type="number" placeholder="ex: 410" oninput="readManual()">
-      <input type="number" placeholder="1" value="1" min="1" oninput="readManual()">
-      <button class="btn btn-sm" onclick="removeManualRow(${id})" title="Remover">
-        <i class="ti ti-trash"></i>
-      </button>
-    `;
-    document.getElementById('manual-rows').appendChild(row);
-    readManual();
-  }
-
-  function removeManualRow(id) {
-    const el = document.getElementById('mrow-'+id);
-    if (el) el.remove();
-    readManual();
-  }
-
-  function readManual() {
-    const rows = document.querySelectorAll('[id^="mrow-"]');
-    panels = [];
-    rows.forEach(row => {
-      const inputs = row.querySelectorAll('input');
-      const name = inputs[0].value.trim() || 'Painel';
-      const w = parseFloat(inputs[1].value);
-      const l = parseFloat(inputs[2].value);
-      const qty = parseInt(inputs[3].value) || 1;
-      if (w > 0 && l > 0) {
-        for (let i = 0; i < qty; i++)
-          panels.push({ produto: name, largura_painel: w, comprimento_painel: l });
-      }
-    });
-    updateCalcBtn();
-  }
-
-  /* ─── File import ─── */
-  document.getElementById('file-input').addEventListener('change', e => {
-    if (e.target.files[0]) processFile(e.target.files[0]);
+function syncState(){
+  tabuaRows=[];
+  document.querySelectorAll('[id^="tr-"]').forEach(r=>{
+    const ins=r.querySelectorAll('input');
+    const w=parseFloat(ins[1].value), l=parseFloat(ins[2].value), q=parseInt(ins[3].value);
+    if(w>0&&l>0&&q>0) tabuaRows.push({nome:ins[0].value||'Tábua',largura:w,comprimento:l,qtd:q});
   });
-
-  const dz = document.getElementById('drop-zone');
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-  dz.addEventListener('drop', e => {
-    e.preventDefault(); dz.classList.remove('drag-over');
-    if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
+  painelRows=[];
+  document.querySelectorAll('[id^="pr-"]').forEach(r=>{
+    const ins=r.querySelectorAll('input');
+    const w=parseFloat(ins[1].value), l=parseFloat(ins[2].value), q=parseInt(ins[3].value)||1;
+    if(w>0&&l>0) painelRows.push({nome:ins[0].value||'Painel',largura:w,comprimento:l,qtd:q});
   });
+  const ok=tabuaRows.length>0&&painelRows.length>0;
+  document.getElementById('calc-btn').disabled=!ok;
+  document.getElementById('calc-status').textContent=ok?
+    `${tabuaRows.length} tipo(s) de tábua · ${painelRows.reduce((s,p)=>s+p.qtd,0)} painel(is) prontos`:
+    'Adicione tábuas e painéis para continuar';
+}
 
-  function processFile(file) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        const wb = XLSX.read(e.target.result, { type: 'binary' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
-        if (!data.length) { alert('Arquivo vazio ou sem dados.'); return; }
+// ── FILE IMPORT ──
+function handleFile(e){ if(e.target.files[0]) readXLSX(e.target.files[0]); }
+function readXLSX(file){
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!data.length){alert('Arquivo vazio.');return;}
+      const norm=k=>k.toLowerCase().trim().replace(/\s+/g,'_');
+      data.forEach(row=>{
+        const nr={};
+        Object.keys(row).forEach(k=>{nr[norm(k)]=row[k];});
+        const w=parseFloat(nr['largura_painel']||nr['largura']);
+        const l=parseFloat(nr['comprimento_painel']||nr['comprimento']);
+        const q=parseInt(nr['qtd']||nr['quantidade'])||1;
+        const n=String(nr['produto']||nr['nome']||'Painel');
+        if(w>0&&l>0) addPainelRow(n,w,l,q);
+      });
+    }catch(err){alert('Erro: '+err.message);}
+  };
+  r.readAsBinaryString(file);
+}
+function downloadTemplate(){
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['produto','largura_painel','comprimento_painel','qtd'],
+    ['Painel gaveta',290,410,4],['Tampa superior',350,600,2],['Lateral armário',290,800,6]
+  ]);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Painéis');
+  XLSX.writeFile(wb,'modelo_paineis.xlsx');
+}
 
-        const rawCols = Object.keys(data[0]);
-        const normCols = rawCols.map(c => c.toLowerCase().trim().replace(/\s+/g,'_'));
-        const remap = {};
-        rawCols.forEach((orig, i) => { remap[orig] = normCols[i]; });
+// ══════════════════════════════════════════════
+// ── ALGORITMO DE OTIMIZAÇÃO ──
+// ══════════════════════════════════════════════
+/*
+  Para cada painel, precisamos de um conjunto de tacos cuja soma
+  de larguras (+ serras entre eles) == largura do painel.
+  Cada taco sai de UMA tábua: a tábua toda tem largura W e comprimento L.
+  De uma tábua podemos tirar floor(L_tabua / L_painel) tacos pelo comprimento.
+  Portanto cada tábua contribui com N = floor(L_tabua/L_painel) tacos de largura W
+  e comprimento L_painel.
 
-        const mapped = data.map(row => {
-          const r = {};
-          Object.keys(row).forEach(k => { r[remap[k]] = row[k]; });
-          return r;
-        });
+  Para montar um painel de largura P, precisamos de uma combinação de
+  tábuas (cada uma com sua largura) tal que:
+    sum(Wi) - (n_cortes * kerf) == P
+  onde n_cortes = número de divisões internas (entre tacos).
 
-        const wCol = normCols.find(c => c.includes('largura'));
-        const lCol = normCols.find(c => c.includes('comp'));
-        const pCol = normCols.find(c => c.includes('prod') || c.includes('nome') || c.includes('item'));
-        const qCol = normCols.find(c => c.includes('qtd') || c.includes('quant'));
+  Abordagem:
+  1) Enumerar combinações de tipos de tábua para chegar na largura do painel,
+     minimizando desperdício.
+  2) Para cada painel, calcular quantas tábuas de cada tipo são consumidas.
+  3) Verificar estoque.
+*/
 
-        panels = [];
-        mapped.forEach(row => {
-          const w = parseFloat(row[wCol]);
-          const l = parseFloat(row[lCol]);
-          const qty = parseInt(row[qCol]) || 1;
-          const name = (pCol ? row[pCol] : '') || 'Painel';
-          if (w > 0 && l > 0) {
-            for (let q = 0; q < qty; q++)
-              panels.push({ produto: String(name), largura_painel: w, comprimento_painel: l });
-          }
-        });
+function calcular(){
+  const kerf = parseFloat(document.getElementById('kerf').value)||3;
+  const tol  = parseFloat(document.getElementById('tol').value)||0;
 
-        showPreview(data);
-        updateCalcBtn();
-      } catch (err) {
-        alert('Erro ao ler arquivo: ' + err.message);
-      }
-    };
-    reader.readAsBinaryString(file);
-  }
+  // Para cada painel, resolver: quais tacos (larguras de tábuas) somam à largura do painel
+  // considerando as serras entre tacos.
+  const resultado = [];
+  const consumoMap = {}; // nome_tabua -> contagem de tábuas usadas
 
-  function showPreview(data) {
-    const area = document.getElementById('preview-area');
-    area.style.display = 'block';
-    const head = document.getElementById('preview-head');
-    const body = document.getElementById('preview-body');
-    head.innerHTML = Object.keys(data[0]).map(k => `<th>${k}</th>`).join('');
-    body.innerHTML = data.slice(0, 6).map(row =>
-      `<tr>${Object.values(row).map(v => `<td>${v}</td>`).join('')}</tr>`
-    ).join('');
-    const extra = data.length - 6;
-    if (extra > 0)
-      body.innerHTML += `<tr><td colspan="${Object.keys(data[0]).length}" style="color:var(--text-ter);font-style:italic">… e mais ${extra} linhas</td></tr>`;
-  }
+  // inicializar estoque disponível
+  const estoque = {};
+  tabuaRows.forEach(t=>{ estoque[t.nome] = t.qtd; });
 
-  function updateCalcBtn() {
-    const btn = document.getElementById('calc-btn');
-    const st = document.getElementById('calc-status');
-    if (panels.length > 0) {
-      btn.disabled = false;
-      st.textContent = `${panels.length} painel(s) pronto(s) para calcular`;
-    } else {
-      btn.disabled = true;
-      st.textContent = 'Importe ou adicione painéis para continuar';
-    }
-  }
+  let totalPaineis = 0, totalArea = 0, totalAreaUtil = 0;
+  let erros = [];
 
-  function downloadTemplate() {
-    const ws = XLSX.utils.aoa_to_sheet([
-      ['produto', 'largura_painel', 'comprimento_painel', 'espessura', 'qtd'],
-      ['Painel frente gaveta',    290, 410, 18, 4],
-      ['Tampa superior',          350, 600, 18, 2],
-      ['Lateral armário',         290, 800, 18, 6],
-      ['Fundo gaveta',            280, 400, 15, 8],
-    ]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Painéis');
-    XLSX.writeFile(wb, 'modelo_corte.xlsx');
-  }
+  for(const painel of painelRows){
+    for(let qi=0; qi<painel.qtd; qi++){
+      totalPaineis++;
+      const target = painel.largura;
+      const comp   = painel.comprimento;
 
-  /* ─── Algoritmo de corte ─── */
-  function calculate() {
-    const kerf    = parseFloat(document.getElementById('saw-kerf').value)  || 3;
-    const sideCut = parseFloat(document.getElementById('side-cut').value)  || 3;
-    const plankW  = parseFloat(document.getElementById('plank-w').value)   || 101.6;
-    const plankL  = parseFloat(document.getElementById('plank-l').value)   || 2600;
+      // Quantos tacos saem de cada tipo de tábua por peça (pelo comprimento)
+      // tacos_por_tabua[i] = floor(tabua.comprimento / painel.comprimento)
+      const tabuasInfo = tabuaRows.map(t=>({
+        ...t,
+        tacosPerPeca: Math.floor(t.comprimento / comp)  // tacos que saem por comprimento
+      })).filter(t=>t.tacosPerPeca>0 && t.largura <= target+tol);
 
-    const usableW = plankW - 2 * sideCut;
-
-    calcResults = optimizeCuts(panels, plankW, usableW, plankL, kerf);
-    renderResults(calcResults, plankW, usableW, kerf);
-
-    const el = document.getElementById('results');
-    el.classList.add('visible');
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function optimizeCuts(panels, plankW, usableW, plankL, kerf) {
-    // First Fit Decreasing: ordena da maior para menor largura
-    const sorted = [...panels].sort((a, b) => b.largura_painel - a.largura_painel);
-    const planks = [];
-
-    for (const panel of sorted) {
-      const pw = panel.largura_painel;
-
-      if (pw > usableW) {
-        planks.push({
-          cuts: [{ panel, width: pw, usesEdge: true, isError: true }],
-          usedWidth: pw, remainW: 0, plankW, usableW, plankL
-        });
+      if(tabuasInfo.length===0){
+        erros.push(`Nenhuma tábua compatível com painel "${painel.nome}" (${target}×${comp}mm)`);
         continue;
       }
 
-      let placed = false;
-      for (const plank of planks) {
-        if (plank.plankL < panel.comprimento_painel) continue;
-        const neededW = plank.cuts.length === 0 ? pw : pw + kerf;
-        if (plank.remainW >= neededW) {
-          plank.cuts.push({ panel, width: pw, usesEdge: plank.cuts.length === 0 });
-          plank.usedWidth += neededW;
-          plank.remainW  -= neededW;
-          placed = true;
-          break;
-        }
+      // Resolver combinação de tacos para atingir target mm
+      // BFS / greedy: ordenar tábuas por largura decrescente
+      const sorted = [...tabuasInfo].sort((a,b)=>b.largura-a.largura);
+      const combo = resolverCombo(sorted, target, kerf, tol);
+
+      if(!combo){
+        erros.push(`Não foi possível montar o painel "${painel.nome}" (${target}mm) com as tábuas disponíveis.`);
+        continue;
       }
 
-      if (!placed) {
-        planks.push({
-          cuts: [{ panel, width: pw, usesEdge: true }],
-          usedWidth: pw,
-          remainW: usableW - pw,
-          plankW, usableW, plankL
-        });
-      }
-    }
-    return planks;
-  }
-
-  /* ─── Renderização ─── */
-  function buildColorMap(planks) {
-    const map = {};
-    let idx = 0;
-    planks.forEach(p => p.cuts.forEach(c => {
-      if (!map[c.panel.produto]) map[c.panel.produto] = COLORS[idx++ % COLORS.length];
-    }));
-    return map;
-  }
-
-  function renderResults(planks, plankW, usableW, kerf) {
-    const totalPlanks = planks.length;
-    const totalCuts   = planks.reduce((s, p) => s + p.cuts.length, 0);
-    const totalUsed   = planks.reduce((s, p) => s + p.usedWidth, 0);
-    const totalAvail  = planks.reduce((s, p) => s + p.usableW, 0);
-    const pct         = totalAvail > 0 ? totalUsed / totalAvail * 100 : 0;
-    const waste       = totalAvail - totalUsed;
-
-    document.getElementById('metrics-grid').innerHTML = `
-      <div class="metric">
-        <div class="metric-label">Tábuas necessárias</div>
-        <div class="metric-val">${totalPlanks}</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Total de tacos</div>
-        <div class="metric-val">${totalCuts}</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Aproveitamento</div>
-        <div class="metric-val">${pct.toFixed(1)}%</div>
-        <div class="metric-sub">${(100-pct).toFixed(1)}% de perda</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Perda acumulada</div>
-        <div class="metric-val">${waste.toFixed(0)} mm</div>
-        <div class="metric-sub">em largura total</div>
-      </div>
-    `;
-
-    const colorMap = buildColorMap(planks);
-    renderVisual(planks, plankW, usableW, kerf, colorMap);
-    renderCutsTable(planks, kerf);
-    renderSummary(planks, usableW);
-  }
-
-  function renderVisual(planks, plankW, usableW, kerf, colorMap) {
-    const container  = document.getElementById('planks-vis');
-    const legend     = document.getElementById('vis-legend');
-    container.innerHTML = '';
-    legend.innerHTML = '';
-
-    const maxW    = Math.min(container.offsetWidth || 700, 700);
-    const scale   = maxW / plankW;
-    const barH    = 38;
-    const sidePx  = Math.round(3 * scale);
-    const kerfPx  = Math.max(Math.round(kerf * scale), 1);
-
-    planks.forEach((plank, pi) => {
-      const row = document.createElement('div');
-      row.className = 'plank-row';
-
-      const lbl = document.createElement('div');
-      lbl.className = 'plank-label';
-      lbl.textContent = `Tábua ${pi + 1}`;
-      row.appendChild(lbl);
-
-      const svgW = Math.round(plankW * scale);
-      const svgH = barH + 18;
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('width', svgW);
-      svg.setAttribute('height', svgH);
-      svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-label', `Tábua ${pi+1} com ${plank.cuts.length} taco(s)`);
-
-      // Fundo tábua
-      const bg = ns('rect', { x:0, y:0, width:svgW, height:barH, fill:'#D3D1C7', rx:4 });
-      svg.appendChild(bg);
-
-      // Laterais cortadas (cinza escuro)
-      svg.appendChild(ns('rect', { x:0, y:0, width:Math.max(sidePx,2), height:barH, fill:'#888780', rx:4 }));
-      svg.appendChild(ns('rect', { x:svgW-Math.max(sidePx,2), y:0, width:Math.max(sidePx,2), height:barH, fill:'#888780' }));
-
-      let x = sidePx;
-
-      plank.cuts.forEach((cut, ci) => {
-        if (ci > 0) {
-          svg.appendChild(ns('rect', { x, y:0, width:kerfPx, height:barH, fill:'#5F5E5A' }));
-          x += kerfPx;
-        }
-        const wPx  = Math.max(Math.round(cut.width * scale), 2);
-        const color = cut.isError ? '#E24B4A' : (colorMap[cut.panel.produto] || '#378ADD');
-
-        svg.appendChild(ns('rect', { x, y:2, width:wPx-1, height:barH-4, fill:color, rx:3, opacity:0.88 }));
-
-        if (wPx > 28) {
-          const t = ns('text', {
-            x: x + (wPx-1)/2, y: barH/2+5,
-            'text-anchor':'middle', fill:'#fff',
-            'font-size':'10', 'font-weight':'500', 'font-family':'sans-serif'
-          });
-          t.textContent = cut.width.toFixed(1);
-          svg.appendChild(t);
-        }
-
-        if (wPx > 18) {
-          const lbl = ns('text', {
-            x: x + (wPx-1)/2, y: barH+13,
-            'text-anchor':'middle', fill:'#888780',
-            'font-size':'9', 'font-family':'sans-serif'
-          });
-          lbl.textContent = (cut.panel.produto||'').substring(0, 9);
-          svg.appendChild(lbl);
-        }
-        x += wPx;
+      // Para cada taco no combo, calcular quantas tábuas físicas são necessárias
+      // (um taco por tábua a cada tacosPerPeca tacos)
+      const tabuasUsadas = [];
+      combo.forEach(c=>{
+        // c.tacosPerPeca tacos saem de 1 tábua
+        // precisamos de 1 taco → ceil(1/tacosPerPeca) tábuas
+        // mas para múltiplos painéis agrupamos — aqui por painel individual:
+        const tacosNecessarios = 1; // 1 taco por painel nesta iteração
+        const tabuasNecessarias = Math.ceil(tacosNecessarios / c.tacosPerPeca);
+        tabuasUsadas.push({tabua: c, qtdTabuas: tabuasNecessarias, qtdTacos: tacosNecessarios});
       });
 
-      const rightEdge = svgW - sidePx;
-      const wastePx = rightEdge - x;
-      if (wastePx > 2) {
-        svg.appendChild(ns('rect', { x, y:2, width:wastePx, height:barH-4, fill:'#F09595', rx:2, opacity:0.55 }));
-        if (wastePx > 24) {
-          const wt = ns('text', {
-            x: x + wastePx/2, y: barH/2+5,
-            'text-anchor':'middle', fill:'#A32D2D',
-            'font-size':'9', 'font-weight':'500', 'font-family':'sans-serif'
-          });
-          wt.textContent = plank.remainW.toFixed(0)+'mm';
+      resultado.push({
+        painel,
+        combo,         // [{nome, largura, comprimento, tacosPerPeca}, ...]
+        tabuasUsadas,
+        kerf,
+        larguraReal: combo.reduce((s,c)=>s+c.largura,0) + (combo.length-1)*kerf,
+        diff: combo.reduce((s,c)=>s+c.largura,0) + (combo.length-1)*kerf - target
+      });
+
+      // acumular consumo — aqui usamos agrupamento posterior
+    }
+  }
+
+  if(erros.length) alert('Avisos:\n'+erros.join('\n'));
+  if(!resultado.length){ alert('Nenhum painel pôde ser calculado.'); return; }
+
+  // Agrupar consumo por tipo de tábua considerando reaproveitamento:
+  // Para cada tipo de tábua T com tacosPerPeca=N:
+  //   contar total de tacos necessários desse tipo → ceil(total/N) tábuas físicas
+  const tacosPorTipo = {};
+  resultado.forEach(r=>{
+    r.combo.forEach(c=>{
+      const k = c.nome+'||'+c.largura+'||'+c.comprimento;
+      tacosPorTipo[k] = tacosPorTipo[k]||{tabua:c, total:0};
+      tacosPorTipo[k].total++;
+    });
+  });
+
+  const consumoFinal = [];
+  let estoqueOk = true;
+  Object.values(tacosPorTipo).forEach(({tabua,total})=>{
+    const fisica = Math.ceil(total / tabua.tacosPerPeca);
+    const disponivel = tabuaRows.find(t=>t.nome===tabua.nome&&t.largura===tabua.largura&&t.comprimento===tabua.comprimento);
+    const estqDisp = disponivel ? disponivel.qtd : 0;
+    consumoFinal.push({tabua, tacos:total, fisica, estqDisp, sobra:estqDisp-fisica, ok:estqDisp>=fisica});
+    if(estqDisp < fisica) estoqueOk = false;
+  });
+
+  // Estatísticas
+  const totalTabuasUsadas = consumoFinal.reduce((s,c)=>s+c.fisica,0);
+  const perdaTotal = resultado.reduce((r,p)=>{
+    // perda = sobra de comprimento em cada tábua física
+    let p2=0;
+    p.combo.forEach(c=>{
+      const sobra_comp = c.comprimento % p.painel.comprimento;
+      p2 += sobra_comp * c.largura;
+    });
+    // perda largura (diff)
+    p2 += Math.abs(p.diff) * p.painel.comprimento;
+    return r+p2;
+  },0);
+
+  const areaTotal = consumoFinal.reduce((s,c)=>s+c.fisica*c.tabua.largura*c.tabua.comprimento,0);
+  const areaPaineis = resultado.reduce((s,r)=>s+r.painel.largura*r.painel.comprimento,0);
+  const aprov = areaTotal>0 ? (areaPaineis/areaTotal*100) : 0;
+
+  lastResult = {resultado, consumoFinal, totalTabuasUsadas, aprov, areaPaineis, areaTotal, estoqueOk, kerf};
+  renderResultados(lastResult);
+
+  document.getElementById('results').classList.add('on');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── RESOLVER COMBINAÇÃO ──
+// Algoritmo guloso: tenta preencher target mm usando as tábuas disponíveis
+// Em caso de múltiplos tipos, usa DP de troco (coin change) por larguras
+function resolverCombo(sorted, target, kerf, tol){
+  // DP de troco — consideramos cada "moeda" = largura de uma tábua
+  // valor de inserção de um taco com kerf:
+  //   primeiro taco: val = largura
+  //   tacos adicionais: val = largura + kerf
+  // Queremos sum == target (com tolerância tol)
+
+  // Busca BFS limitada com memoização
+  // Estado: largura acumulada, lista de tacos usados
+  // Para não explodir, limitamos a combinações com até 20 tacos
+
+  const MAX_TACOS = 20;
+  // Ordenar por largura desc para greedy primeiro
+  const widths = sorted.map(t=>t.largura);
+
+  // Greedy first: preencher do maior para menor
+  let acc = 0, chosen = [];
+  for(const t of sorted){
+    while(true){
+      const next = chosen.length===0 ? t.largura : t.largura + kerf;
+      if(acc + next <= target + tol){
+        acc += next;
+        chosen.push(t);
+        if(Math.abs(acc - target) <= tol) return chosen;
+      } else break;
+    }
+    if(Math.abs(acc - target) <= tol) return chosen;
+  }
+
+  // Se greedy não chegou ao target, tentar DP
+  // Representar como inteiros (×10 para casas decimais)
+  const scale = 10;
+  const T = Math.round(target * scale);
+  const K = Math.round(kerf * scale);
+  const Tol = Math.round(tol * scale) + 1;
+
+  // dp[v] = lista de índices de tabuaRows que somam a v
+  // v = largura acumulada considerando kerf
+  const dp = new Array(T + Tol + 5).fill(null);
+  dp[0] = [];
+
+  for(let v=0; v<T+Tol; v++){
+    if(dp[v]===null) continue;
+    if(dp[v].length >= MAX_TACOS) continue;
+    for(let i=0;i<sorted.length;i++){
+      const w = Math.round(sorted[i].largura * scale);
+      const addW = dp[v].length===0 ? w : w + K;
+      const nv = v + addW;
+      if(nv <= T + Tol){
+        if(dp[nv]===null || dp[nv].length > dp[v].length+1){
+          dp[nv] = [...dp[v], i];
+          if(Math.abs(nv-T) <= Tol) return dp[nv].map(idx=>sorted[idx]);
+        }
+      }
+    }
+  }
+
+  // Verificar se algum valor dentro da tolerância foi encontrado
+  for(let v=T-Tol; v<=T+Tol; v++){
+    if(v>=0 && v<dp.length && dp[v]!==null) return dp[v].map(idx=>sorted[idx]);
+  }
+
+  return null;
+}
+
+// ── TABS ──
+function tab(t){
+  ['vis','tacos','consumo','montagem'].forEach(id=>{
+    document.getElementById('tc-'+id).classList.toggle('on',id===t);
+  });
+  document.querySelectorAll('.tabs .tab').forEach((b,i)=>{
+    b.classList.toggle('active',['vis','tacos','consumo','montagem'][i]===t);
+  });
+}
+
+// ── CORES ──
+const CORES=['#185FA5','#0F6E56','#854F0B','#993556','#3B6D11','#534AB7','#993C1D'];
+function colorMap(resultado){
+  const map={};let i=0;
+  resultado.forEach(r=>{ if(!map[r.painel.nome]) map[r.painel.nome]=CORES[i++%CORES.length]; });
+  return map;
+}
+
+// ── RENDER ──
+function renderResultados({resultado, consumoFinal, totalTabuasUsadas, aprov, estoqueOk, kerf}){
+
+  // Métricas
+  const totalPaineis = resultado.length;
+  const diffMax = Math.max(...resultado.map(r=>Math.abs(r.diff)));
+  const apBadge = aprov>=80?'ok':aprov>=60?'warn':'bad';
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">Painéis planejados</div><div class="metric-val">${totalPaineis}</div></div>
+    <div class="metric"><div class="metric-label">Tábuas físicas</div><div class="metric-val">${totalTabuasUsadas}</div></div>
+    <div class="metric"><div class="metric-label">Aproveitamento</div><div class="metric-val">${aprov.toFixed(1)}%</div><div class="metric-sub">${(100-aprov).toFixed(1)}% de perda</div></div>
+    <div class="metric"><div class="metric-label">Estoque</div><div class="metric-val"><span class="badge ${estoqueOk?'ok':'bad'}">${estoqueOk?'suficiente':'insuficiente'}</span></div></div>
+  `;
+
+  const cmap = colorMap(resultado);
+
+  // VIS
+  renderVis(resultado, consumoFinal, cmap, kerf);
+
+  // TACOS
+  const tbT = document.getElementById('tb-tacos');
+  tbT.innerHTML='';
+  const tacosPorTipo2={};
+  resultado.forEach(r=>{
+    r.combo.forEach((c,ci)=>{
+      const k=c.nome+'||'+c.largura+'||'+c.comprimento;
+      tacosPorTipo2[k]=tacosPorTipo2[k]||{c,tacosLista:[]};
+      tacosPorTipo2[k].tacosLista.push({painel:r.painel.nome,ci});
+    });
+  });
+
+  consumoFinal.forEach(cf=>{
+    const k=cf.tabua.nome+'||'+cf.tabua.largura+'||'+cf.tabua.comprimento;
+    const info=tacosPorTipo2[k];
+    for(let fi=1;fi<=cf.fisica;fi++){
+      const tacosNestaTabua=cf.tabua.tacosPerPeca;
+      // listar tacos que saem desta tábua física
+      const start=(fi-1)*tacosNestaTabua;
+      const sliceTacos=info?info.tacosLista.slice(start,start+tacosNestaTabua):[];
+      if(sliceTacos.length===0&&fi>1) continue;
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${cf.tabua.nome}</td><td>${fi}</td>
+        <td>${tacosNestaTabua} taco(s)</td>
+        <td>${sliceTacos.map(t=>t.painel).join(', ')||'—'}</td>
+        <td>${cf.tabua.largura.toFixed(1)}</td>
+        <td>${cf.tabua.comprimento}</td>
+        <td>posição ${sliceTacos.length>0?1:'-'} a ${sliceTacos.length}</td>`;
+      tbT.appendChild(tr);
+    }
+  });
+
+  // CONSUMO
+  const tbC=document.getElementById('tb-consumo');
+  tbC.innerHTML='';
+  consumoFinal.forEach(c=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${c.tabua.nome}</td><td>${c.tabua.largura.toFixed(1)} mm</td><td>${c.tabua.comprimento} mm</td>
+      <td>${c.estqDisp}</td>
+      <td><strong>${c.fisica}</strong></td>
+      <td><span class="badge ${c.sobra>=0?'ok':'bad'}">${c.sobra>=0?'+'+c.sobra:c.sobra}</span></td>`;
+    tbC.appendChild(tr);
+  });
+
+  // MONTAGEM
+  const tbM=document.getElementById('tb-montagem');
+  tbM.innerHTML='';
+  // Agrupar por painel
+  const byPainel={};
+  resultado.forEach(r=>{
+    const k=r.painel.nome+'||'+r.painel.largura+'||'+r.painel.comprimento;
+    if(!byPainel[k]) byPainel[k]={painel:r.painel,itens:[],count:0};
+    byPainel[k].itens.push(r);
+    byPainel[k].count++;
+  });
+  Object.values(byPainel).forEach(({painel,itens,count})=>{
+    const ex=itens[0];
+    const comp=ex.combo.map(c=>`${c.largura.toFixed(0)}mm (${c.nome})`).join(' + ');
+    const diff=ex.diff;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${painel.nome}</td><td>${painel.largura} mm</td><td>${painel.comprimento} mm</td>
+      <td>${count}</td><td style="font-size:12px">${comp}</td>
+      <td>${ex.larguraReal.toFixed(1)} mm</td>
+      <td><span class="badge ${Math.abs(diff)<1?'ok':Math.abs(diff)<5?'warn':'bad'}">${diff>=0?'+':''}${diff.toFixed(1)}mm</span></td>`;
+    tbM.appendChild(tr);
+  });
+}
+
+function renderVis(resultado, consumoFinal, cmap, kerf){
+  const container=document.getElementById('tc-vis');
+  container.innerHTML='';
+
+  const legDiv=document.createElement('div');
+  legDiv.className='legend';
+
+  // Para cada tipo de tábua consumido, mostrar as tábuas físicas com os tacos
+  // Recriar mapa de tacos por tábua física
+  const tacosPorTipo={};
+  resultado.forEach(r=>{
+    r.combo.forEach(c=>{
+      const k=c.nome+'||'+c.largura+'||'+c.comprimento;
+      if(!tacosPorTipo[k]) tacosPorTipo[k]={tabua:c,tacos:[]};
+      tacosPorTipo[k].tacos.push({painel:r.painel,largura:c.largura,comp:r.painel.comprimento});
+    });
+  });
+
+  const VIS_W = Math.min((container.offsetWidth||700)-100, 620);
+
+  consumoFinal.forEach(cf=>{
+    const k=cf.tabua.nome+'||'+cf.tabua.largura+'||'+cf.tabua.comprimento;
+    const info=tacosPorTipo[k];
+    const tacos=info?info.tacos:[];
+    const scale=VIS_W/cf.tabua.comprimento;
+    const barH=34;
+    const kerfPx=Math.max(Math.round(kerf*scale),1);
+
+    for(let fi=1;fi<=cf.fisica;fi++){
+      const row=document.createElement('div');
+      row.className='plank-vis-row';
+      const lbl=document.createElement('div');
+      lbl.className='plank-vis-label';
+      lbl.textContent=cf.tabua.nome.substring(0,10)+' #'+fi;
+      row.appendChild(lbl);
+
+      const svgW=Math.round(cf.tabua.comprimento*scale);
+      const svgH=barH+16;
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('width',svgW); svg.setAttribute('height',svgH);
+      svg.setAttribute('viewBox',`0 0 ${svgW} ${svgH}`);
+      svg.setAttribute('role','img');
+      svg.setAttribute('aria-label','Tábua '+(cf.tabua.nome)+' #'+fi);
+
+      // fundo
+      svg.appendChild(ns('rect',{x:0,y:0,width:svgW,height:barH,fill:'#D3D1C7',rx:3}));
+
+      // tacos nesta tábua física
+      const start=(fi-1)*cf.tabua.tacosPerPeca;
+      const sliceTacos=tacos.slice(start, start+cf.tabua.tacosPerPeca);
+
+      let x=0;
+      // Cada taco ocupa comp mm no comprimento
+      sliceTacos.forEach((taco,ti)=>{
+        const tacoPx=Math.round(taco.comp*scale);
+        if(ti>0){
+          // kerf entre tacos (pelo comprimento — não pelo comprimento é divisão lateral)
+          // na verdade os tacos são sequenciais no comprimento, sem kerf entre eles no comprimento
+        }
+        const color=cmap[taco.painel.nome]||'#378ADD';
+        svg.appendChild(ns('rect',{x:x,y:2,width:Math.max(tacoPx-1,2),height:barH-4,fill:color,rx:3,opacity:.85}));
+        if(tacoPx>30){
+          const t=ns('text',{x:x+tacoPx/2,y:barH/2+4,'text-anchor':'middle',fill:'#fff','font-size':'10','font-weight':'500','font-family':'sans-serif'});
+          t.textContent=taco.painel.nome.substring(0,8);
+          svg.appendChild(t);
+          const t2=ns('text',{x:x+tacoPx/2,y:barH/2+15,'text-anchor':'middle',fill:'rgba(255,255,255,.8)','font-size':'9','font-family':'sans-serif'});
+          t2.textContent=taco.comp+'mm';
+          svg.appendChild(t2);
+        }
+        x+=tacoPx;
+      });
+
+      // Desperdício de comprimento
+      const wPx=svgW-x;
+      if(wPx>2){
+        svg.appendChild(ns('rect',{x:x,y:2,width:wPx,height:barH-4,fill:'#F09595',rx:2,opacity:.6}));
+        if(wPx>24){
+          const wt=ns('text',{x:x+wPx/2,y:barH/2+5,'text-anchor':'middle',fill:'#A32D2D','font-size':'9','font-family':'sans-serif'});
+          const sobramm=cf.tabua.comprimento - sliceTacos.reduce((s,t)=>s+t.comp,0);
+          wt.textContent=sobramm+'mm';
           svg.appendChild(wt);
         }
       }
 
+      // Label largura da tábua
+      const lt=ns('text',{x:4,y:svgH-3,fill:'#888780','font-size':'9','font-family':'sans-serif'});
+      lt.textContent='L='+cf.tabua.largura+'mm';
+      svg.appendChild(lt);
+
       row.appendChild(svg);
       container.appendChild(row);
-    });
+    }
+  });
 
-    // Legenda
-    Object.entries(colorMap).forEach(([prod, col]) => {
-      const item = document.createElement('div');
-      item.className = 'legend-item';
-      item.innerHTML = `<span class="legend-swatch" style="background:${col}"></span>${prod}`;
-      legend.appendChild(item);
-    });
+  // Legenda
+  Object.entries(cmap).forEach(([nome,cor])=>{
+    const item=document.createElement('div');
+    item.className='leg-item';
+    item.innerHTML=`<span class="leg-sw" style="background:${cor}"></span>${nome}`;
+    legDiv.appendChild(item);
+  });
+  const w1=document.createElement('div'); w1.className='leg-item';
+  w1.innerHTML=`<span class="leg-sw" style="background:#F09595;border:1px solid #E24B4A"></span>Sobra de comprimento`;
+  legDiv.appendChild(w1);
+  container.appendChild(legDiv);
+}
 
-    const wItem = document.createElement('div');
-    wItem.className = 'legend-item';
-    wItem.innerHTML = `<span class="legend-swatch" style="background:#F09595;border:1px solid #E24B4A"></span>Desperdício`;
-    legend.appendChild(wItem);
+function ns(tag,attrs){
+  const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
+  return el;
+}
 
-    const kerf_v = document.getElementById('saw-kerf').value;
-    const kItem = document.createElement('div');
-    kItem.className = 'legend-item';
-    kItem.innerHTML = `<span class="legend-swatch" style="background:#5F5E5A"></span>Serra (${kerf_v}mm)`;
-    legend.appendChild(kItem);
+// ── EXPORTAR ──
+function exportar(){
+  if(!lastResult) return;
+  const {resultado, consumoFinal, aprov} = lastResult;
 
-    const edgeItem = document.createElement('div');
-    edgeItem.className = 'legend-item';
-    edgeItem.innerHTML = `<span class="legend-swatch" style="background:#888780"></span>Lateral cortada`;
-    legend.appendChild(edgeItem);
-  }
+  const montagem=[['Painel','Largura alvo (mm)','Comp. alvo (mm)','Qtd','Composição de tacos','Largura real (mm)','Diferença (mm)']];
+  const byP={};
+  resultado.forEach(r=>{
+    const k=r.painel.nome+'||'+r.painel.largura;
+    if(!byP[k]) byP[k]={painel:r.painel,ex:r,count:0};
+    byP[k].count++;
+  });
+  Object.values(byP).forEach(({painel,ex,count})=>{
+    montagem.push([painel.nome,painel.largura,painel.comprimento,count,
+      ex.combo.map(c=>c.largura+'mm ('+c.nome+')').join(' + '),
+      ex.larguraReal.toFixed(1),ex.diff.toFixed(1)]);
+  });
 
-  function ns(tag, attrs) {
-    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
-    return el;
-  }
+  const consumo=[['Tipo de tábua','Largura (mm)','Comprimento (mm)','Estoque','Usar','Sobra']];
+  consumoFinal.forEach(c=>consumo.push([c.tabua.nome,c.tabua.largura,c.tabua.comprimento,c.estqDisp,c.fisica,c.sobra]));
+  consumo.push([]);
+  consumo.push(['Aproveitamento (%)', aprov.toFixed(1)]);
 
-  function renderCutsTable(planks, kerf) {
-    const body = document.getElementById('cuts-body');
-    body.innerHTML = '';
-    planks.forEach((plank, pi) => {
-      plank.cuts.forEach((cut, ci) => {
-        const tr = document.createElement('tr');
-        const edgeBadge = cut.usesEdge
-          ? `<span class="badge badge-ok">sim</span>`
-          : `<span class="badge badge-neutral">não</span>`;
-        tr.innerHTML = `
-          <td>${pi+1}</td>
-          <td>${ci+1}</td>
-          <td>${cut.panel.produto}${cut.isError ? ' <span class="badge badge-bad">excede largura!</span>' : ''}</td>
-          <td>${cut.width.toFixed(1)}</td>
-          <td>${cut.panel.comprimento_painel}</td>
-          <td>${edgeBadge}</td>
-        `;
-        body.appendChild(tr);
-      });
-      if (plank.remainW > 0.5) {
-        const tr = document.createElement('tr');
-        tr.style.opacity = '0.45';
-        tr.innerHTML = `
-          <td>${pi+1}</td><td>—</td>
-          <td style="font-style:italic">Desperdício</td>
-          <td>${plank.remainW.toFixed(1)}</td><td>—</td><td>—</td>
-        `;
-        body.appendChild(tr);
-      }
-    });
-  }
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(montagem), 'Montagem painéis');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(consumo), 'Consumo tábuas');
+  XLSX.writeFile(wb,'plano_de_corte.xlsx');
+}
 
-  function renderSummary(planks, usableW) {
-    const body = document.getElementById('summary-body');
-    body.innerHTML = '';
-    const byProd = {};
-
-    planks.forEach((plank, pi) => {
-      plank.cuts.forEach(cut => {
-        const k = cut.panel.produto + '__' + cut.panel.largura_painel;
-        if (!byProd[k]) byProd[k] = { produto: cut.panel.produto, largura: cut.panel.largura_painel, count: 0, planksSet: new Set() };
-        byProd[k].count++;
-        byProd[k].planksSet.add(pi);
-      });
-    });
-
-    Object.values(byProd).forEach(p => {
-      const planksUsed   = p.planksSet.size;
-      const planksNeeded = Math.ceil(p.count * p.largura / usableW);
-      const eff = Math.min(100, planksNeeded / planksUsed * 100);
-      const badge = eff >= 80 ? 'badge-ok' : eff >= 55 ? 'badge-warn' : 'badge-bad';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${p.produto}</td>
-        <td>${p.largura.toFixed(1)} mm</td>
-        <td>${p.count}</td>
-        <td>${planksUsed}</td>
-        <td>${planksNeeded}</td>
-        <td><span class="badge ${badge}">${eff.toFixed(0)}%</span></td>
-      `;
-      body.appendChild(tr);
-    });
-  }
-
-  /* ─── Exportar resultados ─── */
-  function exportResults() {
-    if (!calcResults) return;
-
-    const kerf    = parseFloat(document.getElementById('saw-kerf').value);
-    const sideCut = parseFloat(document.getElementById('side-cut').value);
-    const plankW  = parseFloat(document.getElementById('plank-w').value);
-
-    const rows = [['Tábua','Taco','Produto','Largura (mm)','Comprimento (mm)','Usa lateral?','Observação']];
-    calcResults.forEach((plank, pi) => {
-      plank.cuts.forEach((cut, ci) => {
-        rows.push([
-          pi+1, ci+1,
-          cut.panel.produto,
-          cut.width.toFixed(2),
-          cut.panel.comprimento_painel,
-          cut.usesEdge ? 'Sim' : 'Não',
-          cut.isError ? 'EXCEDE LARGURA DA TÁBUA' : ''
-        ]);
-      });
-      if (plank.remainW > 0.5)
-        rows.push([pi+1, '—', 'Desperdício', plank.remainW.toFixed(2), '—', '—', '']);
-    });
-
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [10,8,22,14,16,14,28].map(w=>({wch:w}));
-
-    const totalUsed  = calcResults.reduce((s,p)=>s+p.usedWidth,0);
-    const totalAvail = calcResults.reduce((s,p)=>s+p.usableW,0);
-    const pct = totalAvail>0 ? (totalUsed/totalAvail*100).toFixed(1) : '0';
-
-    const resumo = [
-      ['Parâmetro','Valor'],
-      ['Tábuas utilizadas', calcResults.length],
-      ['Total de tacos', calcResults.reduce((s,p)=>s+p.cuts.length,0)],
-      ['Aproveitamento (%)', pct],
-      ['Constante de serra (mm)', kerf],
-      ['Recorte lateral (mm)', sideCut],
-      ['Largura da tábua (mm)', plankW],
-    ];
-    const wsR = XLSX.utils.aoa_to_sheet(resumo);
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Plano de Corte');
-    XLSX.utils.book_append_sheet(wb, wsR, 'Resumo');
-    XLSX.writeFile(wb, 'plano_de_corte.xlsx');
-  }
-
-  /* ─── Init ─── */
-  addManualRow();
+// ── INIT ──
+addTabuaRow('Pinus 100','101.6','2600','10');
+addPainelRow('Painel gaveta','290','410','4');
 </script>
 </body>
 </html>
