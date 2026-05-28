@@ -42,9 +42,8 @@ main{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 4rem}
 .field label{font-size:12px;color:var(--tx2);display:block;margin-bottom:3px}
 .field input{width:100%;padding:7px 10px;font-size:14px;border:.5px solid var(--br2);border-radius:var(--r);background:var(--bg);color:var(--tx);font-family:var(--f);outline:none;transition:border-color .15s}
 .field input:focus{border-color:var(--tx)}
-.hint{font-size:12px;color:var(--tx3);display:flex;align-items:flex-start;gap:4px;margin-top:8px}
+.hint{font-size:12px;color:var(--tx3);display:flex;align-items:flex-start;gap:4px;margin-top:8px;line-height:1.5}
 .hint i{flex-shrink:0;margin-top:2px}
-.sep{height:.5px;background:var(--br);margin:1rem 0}
 .row-grid{display:grid;gap:8px;margin-bottom:8px;align-items:center}
 .row-grid.tabua-row{grid-template-columns:2fr 1fr 1fr 1fr 36px}
 .row-grid.painel-row{grid-template-columns:2fr 1fr 1fr 1fr 36px}
@@ -72,8 +71,7 @@ main{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 4rem}
 .tab{padding:7px 14px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:var(--f)}
 .tab:hover{color:var(--tx)}
 .tab.active{color:var(--tx);border-bottom-color:var(--tx);font-weight:500}
-.tc{display:none}
-.tc.on{display:block}
+.tc{display:none}.tc.on{display:block}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{font-size:11px;color:var(--tx2);font-weight:500;text-align:left;padding:6px 10px;border-bottom:.5px solid var(--br);white-space:nowrap}
 td{padding:7px 10px;border-bottom:.5px solid var(--br);vertical-align:middle}
@@ -83,56 +81,42 @@ tr:last-child td{border-bottom:none}
 .warn{background:var(--amber-bg);color:var(--amber-tx)}
 .bad{background:var(--red-bg);color:var(--red-tx)}
 .neutral{background:var(--bg2);color:var(--tx2)}
-.vis-wrap{overflow-x:auto;padding-bottom:4px}
 .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2)}
 .leg-sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex-shrink:0}
 footer{text-align:center;padding:2rem;font-size:12px;color:var(--tx3);border-top:.5px solid var(--br)}
-.section-sub{font-size:12px;color:var(--tx2);margin-bottom:.75rem}
 .actions-row{display:flex;justify-content:flex-end;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
-
-/* Visualização de colagem (largura) */
-.painel-vis-block{margin-bottom:18px;padding-bottom:14px;border-bottom:.5px solid var(--br)}
-.painel-vis-block:last-child{border-bottom:none;margin-bottom:0}
-.painel-vis-title{font-size:12px;font-weight:500;color:var(--tx2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.painel-vis-row{display:flex;align-items:stretch;gap:0;overflow-x:auto}
-.taco-block{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:3px;font-size:10px;color:#fff;font-weight:500;padding:4px 2px;min-width:20px;flex-shrink:0;text-align:center;line-height:1.3}
-.serra-line{width:3px;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--tx3)}
-.sobra-block{background:var(--red-bg);color:var(--red-tx);border:1px dashed var(--red-tx);font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:3px;padding:2px 3px}
-.vis-scale-note{font-size:11px;color:var(--tx3);margin-top:4px}
-
-/* corte por comprimento */
-.comp-vis-wrap{margin-top:4px}
-.comp-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.comp-label{font-size:11px;color:var(--tx2);min-width:90px;text-align:right;flex-shrink:0}
+.vis-block{margin-bottom:20px;padding-bottom:16px;border-bottom:.5px solid var(--br)}
+.vis-block:last-child{border-bottom:none}
+.vis-title{font-size:12px;font-weight:600;color:var(--tx);margin-bottom:8px}
+.vis-sub{font-size:11px;color:var(--tx3);margin-top:5px}
+.comp-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.comp-label{font-size:11px;color:var(--tx2);min-width:80px;text-align:right;flex-shrink:0}
 </style>
 </head>
 <body>
 <header>
   <div class="logo"><i class="ti ti-ruler-measure"></i></div>
-  <div>
-    <h1>Plano de Corte</h1>
-    <span>Otimizador de aproveitamento de madeira</span>
-  </div>
+  <div><h1>Plano de Corte</h1><span>Otimizador de aproveitamento de madeira</span></div>
 </header>
 <main>
 
-<!-- TÁBUAS DISPONÍVEIS -->
 <div class="card">
   <div class="card-title"><div class="badge-num">1</div>Tábuas disponíveis (matéria-prima)</div>
   <div class="row-grid tabua-row" style="margin-bottom:4px">
     <span class="col-head">Nome / referência</span>
-    <span class="col-head">Largura (mm)</span>
+    <span class="col-head">Largura máx. (mm)</span>
     <span class="col-head">Comprimento (mm)</span>
     <span class="col-head">Qtd disponível</span>
     <span></span>
   </div>
   <div id="tabua-rows"></div>
   <button class="btn btn-sm" onclick="addTabuaRow()"><i class="ti ti-plus"></i> Adicionar tábua</button>
-  <div class="hint"><i class="ti ti-info-circle"></i> A constante de serra (3mm) é descontada entre cada taco colado. As bordas da tábua ficam nas laterais do painel — a CNC acerta na etapa seguinte.</div>
+  <div class="hint"><i class="ti ti-info-circle"></i>
+    A <strong>largura máxima</strong> é a largura bruta da tábua. O algoritmo pode usar qualquer fração desta largura para compor o painel — você faz o corte longitudinal na serra. A constante de serra (3mm) é descontada entre cada taco colado.
+  </div>
 </div>
 
-<!-- PAINÉIS DESEJADOS -->
 <div class="card">
   <div class="card-title"><div class="badge-num">2</div>Painéis a produzir</div>
   <div class="row-grid painel-row" style="margin-bottom:4px">
@@ -152,18 +136,17 @@ footer{text-align:center;padding:2rem;font-size:12px;color:var(--tx3);border-top
   <div class="hint"><i class="ti ti-info-circle"></i> Colunas da planilha: <strong>produto</strong>, <strong>largura_painel</strong>, <strong>comprimento_painel</strong>, <strong>qtd</strong></div>
 </div>
 
-<!-- PARÂMETROS -->
 <div class="card">
   <div class="card-title"><div class="badge-num">3</div>Parâmetros de corte</div>
   <div class="grid2">
     <div class="field"><label>Constante de serra (mm)</label><input type="number" id="kerf" value="3" min="0" step="0.5"></div>
-    <div class="field"><label>Tolerância mínima (mm) — quanto pode faltar</label><input type="number" id="tolMin" value="0" min="0" step="0.5"></div>
-    <div class="field"><label>Tolerância máxima (mm) — quanto pode sobrar</label><input type="number" id="tolMax" value="30" min="0" step="0.5"></div>
+    <div class="field"><label>Largura mínima de taco (mm)</label><input type="number" id="minTaco" value="20" min="1" step="1"></div>
   </div>
-  <div class="hint"><i class="ti ti-info-circle"></i> A tolerância máxima define o quanto a soma das tábuas pode ultrapassar a largura do painel — a CNC apara o excesso. Deixe tolMin = 0 pois o painel não pode ser menor que o alvo. Aumente tolMax se não encontrar combinações (ex: 30–50mm para tábuas largas).</div>
+  <div class="hint"><i class="ti ti-info-circle"></i>
+    A <strong>largura mínima de taco</strong> limita o menor pedaço que vale serrar (ex: 20mm). O algoritmo sempre tenta cobrir a largura do painel com o <strong>menor desperdício possível</strong>, combinando tábuas inteiras e frações — a CNC apara o excesso.
+  </div>
 </div>
 
-<!-- CALCULAR -->
 <div class="calc-zone">
   <button class="btn btn-primary" id="calc-btn" onclick="calcular()" disabled>
     <i class="ti ti-calculator"></i> Calcular plano de corte
@@ -171,7 +154,6 @@ footer{text-align:center;padding:2rem;font-size:12px;color:var(--tx3);border-top
   <p class="calc-status" id="calc-status">Adicione tábuas e painéis para continuar</p>
 </div>
 
-<!-- RESULTADOS -->
 <div class="results" id="results">
   <div class="metrics" id="metrics"></div>
   <div class="card">
@@ -185,52 +167,45 @@ footer{text-align:center;padding:2rem;font-size:12px;color:var(--tx3);border-top
       <button class="tab" onclick="tab('consumo')">Consumo de tábuas</button>
     </div>
     <div id="tc-montagem" class="tc on">
-      <div style="overflow-x:auto">
-        <table>
-          <thead><tr>
-            <th>Painel</th><th>Largura alvo</th><th>Comp.</th><th>Qtd</th>
-            <th>Composição de tacos (colagem)</th><th>Tacos usados</th><th>Largura real</th><th>Diferença</th>
-            <th>Tacos por tábua</th>
-          </tr></thead>
-          <tbody id="tb-montagem"></tbody>
-        </table>
-      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr>
+          <th>Painel</th><th>Largura alvo</th><th>Comp.</th><th>Qtd</th>
+          <th>Composição de tacos</th><th>Largura colada</th><th>Sobra CNC</th><th>Tacos/tábua</th>
+        </tr></thead>
+        <tbody id="tb-montagem"></tbody>
+      </table></div>
     </div>
     <div id="tc-vis" class="tc">
-      <p style="font-size:12px;color:var(--tx3);margin-bottom:12px">Visualização lateral do painel — tacos colados da esquerda para a direita. As bordas das tábuas ficam nas laterais.</p>
+      <p style="font-size:12px;color:var(--tx3);margin-bottom:12px">Vista lateral — tacos colados da esquerda para a direita. Bordas brutas das tábuas ficam nas laterais.</p>
       <div id="vis-content"></div>
     </div>
     <div id="tc-cortes" class="tc">
-      <p style="font-size:12px;color:var(--tx3);margin-bottom:12px">Para cada tipo de tábua, os cortes por comprimento necessários para obter os tacos.</p>
+      <p style="font-size:12px;color:var(--tx3);margin-bottom:12px">Cortes necessários por tipo de tábua. Cada linha é uma tábua física; as faixas coloridas são os tacos que saem dela.</p>
       <div id="cortes-content"></div>
     </div>
     <div id="tc-consumo" class="tc">
-      <div style="overflow-x:auto">
-        <table>
-          <thead><tr><th>Tipo de tábua</th><th>Largura</th><th>Comprimento</th><th>Estoque</th><th>Usar</th><th>Sobra</th><th>Tacos por tábua</th></tr></thead>
-          <tbody id="tb-consumo"></tbody>
-        </table>
-      </div>
+      <div style="overflow-x:auto"><table>
+        <thead><tr><th>Tipo</th><th>Larg. máx.</th><th>Comp.</th><th>Estoque</th><th>Usar</th><th>Sobra</th><th>Tacos/tábua</th></tr></thead>
+        <tbody id="tb-consumo"></tbody>
+      </table></div>
     </div>
   </div>
 </div>
 
 </main>
-<footer>Plano de Corte — otimização por largura com DP de troco + First Fit Decreasing</footer>
+<footer>Plano de Corte — algoritmo de partição ótima de largura</footer>
 
 <script>
 // ── STATE ──
-let tabuaRows = [], painelRows = [], lastResult = null;
-let tRc = 0, pRc = 0;
+let tabuaRows=[], painelRows=[], lastResult=null;
+let tRc=0, pRc=0;
 
-// ── TÁBUAS ──
-function addTabuaRow(nome='', larg='', comp='', qtd='') {
-  tRc++;
-  const id = tRc;
-  const d = document.createElement('div');
-  d.id = 'tr-'+id; d.className = 'row-grid tabua-row';
-  d.innerHTML = `
-    <input type="text" placeholder="ex: Pinus 100mm" value="${nome}" oninput="syncState()">
+function addTabuaRow(nome='',larg='',comp='',qtd=''){
+  tRc++; const id=tRc;
+  const d=document.createElement('div');
+  d.id='tr-'+id; d.className='row-grid tabua-row';
+  d.innerHTML=`
+    <input type="text" placeholder="ex: Pinus 100" value="${nome}" oninput="syncState()">
     <input type="number" placeholder="ex: 101.6" value="${larg}" min="1" step="0.1" oninput="syncState()">
     <input type="number" placeholder="ex: 2300" value="${comp}" min="1" oninput="syncState()">
     <input type="number" placeholder="ex: 100" value="${qtd}" min="1" oninput="syncState()">
@@ -239,13 +214,11 @@ function addTabuaRow(nome='', larg='', comp='', qtd='') {
   syncState();
 }
 
-// ── PAINÉIS ──
-function addPainelRow(nome='', larg='', comp='', qtd='') {
-  pRc++;
-  const id = pRc;
-  const d = document.createElement('div');
-  d.id = 'pr-'+id; d.className = 'row-grid painel-row';
-  d.innerHTML = `
+function addPainelRow(nome='',larg='',comp='',qtd=''){
+  pRc++; const id=pRc;
+  const d=document.createElement('div');
+  d.id='pr-'+id; d.className='row-grid painel-row';
+  d.innerHTML=`
     <input type="text" placeholder="ex: Painel gaveta" value="${nome}" oninput="syncState()">
     <input type="number" placeholder="ex: 290" value="${larg}" min="1" step="0.1" oninput="syncState()">
     <input type="number" placeholder="ex: 410" value="${comp}" min="1" oninput="syncState()">
@@ -261,13 +234,13 @@ function syncState(){
   tabuaRows=[];
   document.querySelectorAll('[id^="tr-"]').forEach(r=>{
     const ins=r.querySelectorAll('input');
-    const w=parseFloat(ins[1].value), l=parseFloat(ins[2].value), q=parseInt(ins[3].value);
+    const w=parseFloat(ins[1].value),l=parseFloat(ins[2].value),q=parseInt(ins[3].value);
     if(w>0&&l>0&&q>0) tabuaRows.push({nome:ins[0].value||'Tábua',largura:w,comprimento:l,qtd:q});
   });
   painelRows=[];
   document.querySelectorAll('[id^="pr-"]').forEach(r=>{
     const ins=r.querySelectorAll('input');
-    const w=parseFloat(ins[1].value), l=parseFloat(ins[2].value), q=parseInt(ins[3].value)||1;
+    const w=parseFloat(ins[1].value),l=parseFloat(ins[2].value),q=parseInt(ins[3].value)||1;
     if(w>0&&l>0) painelRows.push({nome:ins[0].value||'Painel',largura:w,comprimento:l,qtd:q});
   });
   const ok=tabuaRows.length>0&&painelRows.length>0;
@@ -277,7 +250,6 @@ function syncState(){
     'Adicione tábuas e painéis para continuar';
 }
 
-// ── FILE IMPORT ──
 function handleFile(e){ if(e.target.files[0]) readXLSX(e.target.files[0]); }
 function readXLSX(file){
   const r=new FileReader();
@@ -289,8 +261,7 @@ function readXLSX(file){
       if(!data.length){alert('Arquivo vazio.');return;}
       const norm=k=>k.toLowerCase().trim().replace(/\s+/g,'_');
       data.forEach(row=>{
-        const nr={};
-        Object.keys(row).forEach(k=>{nr[norm(k)]=row[k];});
+        const nr={};Object.keys(row).forEach(k=>{nr[norm(k)]=row[k];});
         const w=parseFloat(nr['largura_painel']||nr['largura']);
         const l=parseFloat(nr['comprimento_painel']||nr['comprimento']);
         const q=parseInt(nr['qtd']||nr['quantidade'])||1;
@@ -311,649 +282,556 @@ function downloadTemplate(){
   XLSX.writeFile(wb,'modelo_paineis.xlsx');
 }
 
-// ══════════════════════════════════════════════════════════════
-//  ALGORITMO PRINCIPAL — OTIMIZAÇÃO POR LARGURA
-// ══════════════════════════════════════════════════════════════
-/*
-  MODELO CORRETO:
-  ─────────────────────────────────────────────────────────────
-  Um PAINEL é feito colando N tacos lado a lado na direção da LARGURA.
-  Cada taco tem:
-    • largura  = largura da tábua de origem (não se corta no sentido da largura)
-    • comprimento = comprimento do painel (corta-se a tábua no sentido do comprimento)
-
-  A largura final do painel é:
-    soma(larguras dos tacos) + (N-1)*kerf  ← serras ENTRE tacos, não nas bordas
-    deve estar entre [target - tolMin, target + tolMax]
-
-  De 1 tábua física com comprimento L saem:
-    tacosPerPeca = floor(L_tabua / comp_painel)  tacos
-
-  Sobra de comprimento por tábua:
-    sobraComp = L_tabua mod comp_painel
-
-  OBJETIVO: encontrar a combinação de tipos de tábua (podendo repetir)
-  que minimize o desperdício, ou seja, que fique mais próximo do target.
-
-  A combinação pode misturar larguras diferentes, ex:
-    101.6 + 101.6 + 101.6 (com 2 serras) = 304.8 + 6 = 310.8mm
-    101.6 + 101.6 (com 1 serra) = 203.2 + 3 = 206.2mm
-    etc.
-
-  ALGORITMO:
-  1) DP de "troco" sobre valores inteiros (×10 para evitar float) para
-     encontrar todas as combinações possíveis dentro da janela de tolerância.
-  2) Dentre as soluções encontradas, escolher a que minimiza a diferença para o target.
-     Em caso de empate, prefere a com menos tacos (menos colagem) e com tacos maiores
-     nas bordas (borda da tábua = borda do painel).
-  3) Contar tacos necessários por tipo de tábua e dividir por tacosPerPeca para
-     saber quantas tábuas físicas serão usadas.
-*/
+// ═══════════════════════════════════════════════════════════════════
+//  MODELO DE NEGÓCIO CORRETO
+// ═══════════════════════════════════════════════════════════════════
+//
+//  Você tem tábuas com largura máxima W (ex: 101.6mm, 127mm).
+//  Você pode serrar qualquer tábua longitudinalmente em qualquer
+//  largura entre minTaco e W — gerando um taco de largura customizada.
+//
+//  Um PAINEL de largura P é feito colando N tacos lado a lado:
+//    taco1 + taco2 + ... + tacoN + (N-1)*kerf = P  (exato ou com pequena sobra)
+//
+//  Regras:
+//  • Cada taco tem uma largura usada (L_usado) ≤ largura máxima da tábua de origem.
+//  • A sobra de largura de cada taco (W_tabua - L_usado) é desperdício.
+//  • Minimizar o desperdício total de largura.
+//  • A CNC vai aparar a borda — então a largura colada pode ficar acima de P,
+//    mas queremos que fique o mais próximo possível.
+//
+//  ESTRATÉGIA ÓTIMA:
+//  Para um painel de largura P com kerf K:
+//  1. Tentar usar a tábua mais larga disponível ao máximo antes de adicionar outra.
+//  2. O último taco pode ser cortado exatamente para completar a largura sem sobra.
+//  3. Se possível, usar 1 tábua inteira + 1 taco cortado exato → zero desperdício.
+//
+//  ALGORITMO — "Partition with remainder":
+//  Para cada combinação possível de N_i tacos do tipo i (N_i ≥ 0):
+//    soma = Σ(N_i * W_i) + (Σ N_i - 1) * K
+//    Se soma ≥ P: desperdício_largura = soma - P  (CNC apara este valor total)
+//    Escolher a combinação com menor desperdício.
+//
+//  Mas podemos ser mais inteligentes: o ÚLTIMO taco de qualquer tipo pode ser
+//  cortado na serra em uma largura menor, exatamente suficiente para completar.
+//  Isso é a chave: o desperdício real é apenas a sobra deste último taco.
+//
+//  Formulação ótima:
+//  Dado N_i tacos inteiros (largura máxima) de cada tipo i:
+//    resto = P - [Σ(N_i * W_i) + (Σ N_i - 1)*K]  ... mas ainda precisamos incluir o kerf do próximo taco
+//    Na verdade: para N tacos totais, largura_necessária = P - (N-1)*K
+//    Cada taco tem largura W_i disponível.
+//    Queremos: Σ L_i = P - (N-1)*K  com L_i ≤ W_i para cada i.
+//    Para minimizar desperdício: Σ(W_i - L_i)
+//    = Σ W_i - [P - (N-1)*K]
+//    = Σ W_i - P + (N-1)*K
+//    Minimizar isso = minimizar [Σ W_i + (N-1)*K - P]
+//    = minimizar [larguraColada - P] onde larguraColada = Σ W_i + (N-1)*K
+//
+//  ISSO É O PROBLEMA DO TROCO CLÁSSICO: encontrar a combinação de "moedas" W_i
+//  que dá a soma S = Σ W_i + (N-1)*K ≥ P com S mínimo.
+//  Porém aqui podemos usar frações! O último taco pode ser qualquer valor ≤ W_último.
+//
+//  Solução ótima sempre existe com no máximo 1 taco fracionado (o último).
+//  Algoritmo:
+//  1. Para cada combinação de tacos INTEIROS com soma < P + K*N:
+//     falta = P - (soma_até_agora) - (N_restante-1)*K
+//     se falta ≤ W_próxima_tábua → cortar este taco em "falta" mm → desperdício = W_próxima - falta
+//  2. Busca BFS com poda por desperdício mínimo.
+// ═══════════════════════════════════════════════════════════════════
 
 function calcular(){
-  const kerf   = parseFloat(document.getElementById('kerf').value)||3;
-  const tolMin = parseFloat(document.getElementById('tolMin').value)||3; // pode faltar até tolMin
-  const tolMax = parseFloat(document.getElementById('tolMax').value)||5; // pode sobrar até tolMax
+  const kerf    = parseFloat(document.getElementById('kerf').value)||3;
+  const minTaco = parseFloat(document.getElementById('minTaco').value)||20;
 
-  // Montar lista de larguras únicas disponíveis (pode ter múltiplos tipos com mesma largura)
-  // Cada tipo de tábua é identificado por nome+largura+comprimento
-  const tipoTabuas = tabuaRows.map(t=>({
-    nome: t.nome,
-    largura: t.largura,
-    comprimento: t.comprimento,
-    qtd: t.qtd
-  }));
-
-  const resultado = [];
-  const erros = [];
+  const resultado=[], erros=[];
 
   for(const painel of painelRows){
-    // Calcular tacosPerPeca para cada tipo de tábua com este painel
-    const tiposValidos = tipoTabuas.map(t=>({
-      ...t,
-      tacosPerPeca: Math.floor(t.comprimento / painel.comprimento)
-    })).filter(t => t.tacosPerPeca > 0);
+    const tiposValidos = tabuaRows
+      .map(t=>({...t, tacosPerPeca: Math.floor(t.comprimento/painel.comprimento)}))
+      .filter(t=>t.tacosPerPeca>0 && t.largura>=minTaco);
 
-    if(tiposValidos.length === 0){
-      erros.push(`Nenhuma tábua tem comprimento suficiente para o painel "${painel.nome}" (${painel.comprimento}mm)`);
+    if(!tiposValidos.length){
+      erros.push(`Nenhuma tábua compatível com "${painel.nome}" (comp=${painel.comprimento}mm)`);
       continue;
     }
 
-    // Resolver a combinação de tacos para a largura do painel
-    const combo = resolverComboLargura(tiposValidos, painel.largura, kerf, tolMin, tolMax);
-
+    const combo = otimizarLargura(tiposValidos, painel.largura, kerf, minTaco);
     if(!combo){
-      // Encontrar a combinação mais próxima para informar o usuário
-      const closest = encontrarMaisProximo(tiposValidos, painel.largura, kerf);
-      const hint = closest
-        ? ` Mais próximo encontrado: ${closest.combo.map(c=>c.largura+'mm').join('+')} = ${closest.real.toFixed(1)}mm (diff ${closest.diff>=0?'+':''}${closest.diff.toFixed(1)}mm). Aumente a tolerância máxima para aceitar.`
-        : '';
-      erros.push(`Não foi possível montar "${painel.nome}" (${painel.largura}mm) dentro da tolerância (−${tolMin}/+${tolMax}mm).${hint}`);
+      erros.push(`Não foi possível montar "${painel.nome}" — verifique os parâmetros.`);
       continue;
     }
 
-    // Calcular largura real considerando as serras ENTRE os tacos (não nas bordas)
-    const larguraReal = combo.reduce((s,c)=>s+c.largura, 0) + (combo.length-1)*kerf;
-    const diff = larguraReal - painel.largura;
+    const larguraColada = combo.reduce((s,t)=>s+t.larguraUsada,0) + (combo.length-1)*kerf;
+    const sobraCNC      = larguraColada - painel.largura;
 
-    resultado.push({
-      painel,
-      combo,          // array de tipos de tábua (pode repetir o mesmo tipo)
-      larguraReal,
-      diff,
-      kerf
-    });
+    resultado.push({painel, combo, larguraColada, sobraCNC, kerf});
   }
 
   if(erros.length) alert('Avisos:\n'+erros.join('\n\n'));
-  if(!resultado.length){ alert('Nenhum painel pôde ser calculado.'); return; }
+  if(!resultado.length){alert('Nenhum painel calculado.');return;}
 
-  // ── AGRUPAR CONSUMO DE TÁBUAS ──
-  // Contabilizar tacos necessários por tipo de tábua, considerando que múltiplos
-  // painéis iguais compartilham os cortes da mesma tábua física.
-  //
-  // Estratégia:
-  // • Para cada painel individual que usa um tipo de tábua, conta 1 taco daquele tipo.
-  // • Uma tábua física fornece tacosPerPeca tacos para aquele comprimento de painel.
-  // • Tábuas físicas necessárias = ceil(total_tacos / tacosPerPeca)
-  //
-  // IMPORTANTE: tábuas de comprimentos diferentes têm tacosPerPeca diferentes.
-  // Vamos agrupar por (nome+largura+comprimento+compPainel) para considerar isso.
-
-  // chave: nome_tabua || largura || compTabua || compPainel
-  const tacosPorChave = {};
+  // ── CONSUMO DE TÁBUAS ──
+  // Agrupar tacos por tipo de tábua (nome+largura+comprimento+compPainel)
+  // Para cada grupo: calcular tábuas físicas necessárias
+  const grupoMap={};
   resultado.forEach(r=>{
-    r.combo.forEach(c=>{
-      const chave = `${c.nome}||${c.largura}||${c.comprimento}||${r.painel.comprimento}`;
-      if(!tacosPorChave[chave]){
-        tacosPorChave[chave] = {
-          tabua: c,
-          compPainel: r.painel.comprimento,
-          tacosPerPeca: c.tacosPerPeca,
-          totalTacos: 0
-        };
-      }
-      tacosPorChave[chave].totalTacos++;
+    r.combo.forEach(taco=>{
+      const k=`${taco.nome}||${taco.largura}||${taco.comprimento}||${r.painel.comprimento}`;
+      if(!grupoMap[k]) grupoMap[k]={tabua:taco, compPainel:r.painel.comprimento, tacosPerPeca:taco.tacosPerPeca, totalTacos:0};
+      grupoMap[k].totalTacos++;
     });
   });
 
-  // Adicionar também os tacos dos múltiplos painéis iguais que foram calculados
-  // (acima já iteramos sobre resultado, que inclui painelQtd vezes cada painel)
-
-  const consumoFinal = [];
-  let estoqueOk = true;
-  Object.values(tacosPorChave).forEach(({tabua, compPainel, tacosPerPeca, totalTacos})=>{
-    const fisicas = Math.ceil(totalTacos / tacosPerPeca);
-    const disponivel = tabuaRows.find(t=>t.nome===tabua.nome && t.largura===tabua.largura && t.comprimento===tabua.comprimento);
-    const estqDisp = disponivel ? disponivel.qtd : 0;
-    const sobra = estqDisp - fisicas;
-    if(sobra < 0) estoqueOk = false;
-    consumoFinal.push({tabua, compPainel, tacosPerPeca, totalTacos, fisicas, estqDisp, sobra, ok: sobra>=0});
+  const consumoFinal=[];
+  let estoqueOk=true;
+  Object.values(grupoMap).forEach(g=>{
+    const fisicas=Math.ceil(g.totalTacos/g.tacosPerPeca);
+    const disp=tabuaRows.find(t=>t.nome===g.tabua.nome&&t.largura===g.tabua.largura&&t.comprimento===g.tabua.comprimento);
+    const estq=disp?disp.qtd:0;
+    const sobra=estq-fisicas;
+    if(sobra<0) estoqueOk=false;
+    consumoFinal.push({...g, fisicas, estq, sobra, ok:sobra>=0});
   });
 
-  // Estatísticas globais
-  const totalPaineis = resultado.length;
-  const totalTabuasUsadas = consumoFinal.reduce((s,c)=>s+c.fisicas, 0);
+  const totalPaineis=resultado.length;
+  const totalTabuasUsadas=consumoFinal.reduce((s,c)=>s+c.fisicas,0);
+  const areaPaineis=resultado.reduce((s,r)=>s+r.painel.largura*r.painel.comprimento,0);
+  const areaTabuas=consumoFinal.reduce((s,c)=>s+c.fisicas*c.tabua.largura*c.tabua.comprimento,0);
+  const aprov=areaTabuas>0?(areaPaineis/areaTabuas*100):0;
 
-  // Aproveitamento: área útil dos painéis / área total das tábuas usadas
-  const areaPaineis = resultado.reduce((s,r)=>s+r.painel.largura*r.painel.comprimento, 0);
-  // Área das tábuas físicas consumidas
-  const areaTabuas = consumoFinal.reduce((s,c)=>s+c.fisicas*c.tabua.largura*c.tabua.comprimento, 0);
-  const aprov = areaTabuas > 0 ? (areaPaineis/areaTabuas*100) : 0;
-
-  lastResult = {resultado, consumoFinal, totalPaineis, totalTabuasUsadas, areaPaineis, areaTabuas, aprov, estoqueOk, kerf, tolMin, tolMax};
+  lastResult={resultado,consumoFinal,totalPaineis,totalTabuasUsadas,aprov,estoqueOk,kerf};
   renderResultados(lastResult);
-
   document.getElementById('results').classList.add('on');
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// ══════════════════════════════════════════════════════════════
-//  ENCONTRAR COMBINAÇÃO MAIS PRÓXIMA (para msg de erro)
-// ══════════════════════════════════════════════════════════════
-function encontrarMaisProximo(tiposValidos, target, kerf){
-  const SCALE = 10, MAX_TACOS = 10;
-  const K = Math.round(kerf*SCALE);
-  const dp = new Map();
-  dp.set(0, []);
-  let current = new Map([[0,[]]]);
-  let best = null, bestDiff = Infinity;
-  for(let n=1; n<=MAX_TACOS; n++){
+// ═══════════════════════════════════════════════════════════════════
+//  ALGORITMO PRINCIPAL: otimizarLargura
+//
+//  Encontra a combinação de tacos (possivelmente com o último cortado)
+//  que cobre a largura do painel com mínimo desperdício.
+//
+//  Cada taco pode ser:
+//   - INTEIRO: usa a largura máxima da tábua
+//   - FRACIONADO: usa qualquer largura entre minTaco e largura máxima
+//     (mas só o ÚLTIMO taco de cada tábua pode ser fracionado num painel)
+//
+//  Retorna: array de {nome, largura (máxima), larguraUsada, comprimento, tacosPerPeca}
+// ═══════════════════════════════════════════════════════════════════
+function otimizarLargura(tipos, target, kerf, minTaco){
+  // Ordenar tipos por largura decrescente para BFS mais eficiente
+  const tiposSorted = [...tipos].sort((a,b)=>b.largura-a.largura);
+
+  // BFS: estado = {acumulado_sem_kerf_final, comboParcial}
+  // acumulado = soma das larguras usadas até agora (sem o kerf final do próximo)
+  // larguraColada(N tacos) = acumulado + (N-1)*kerf
+  //
+  // Em cada nível, tentamos adicionar 1 taco INTEIRO de qualquer tipo.
+  // Ao final de cada nível, verificamos se podemos completar com 1 taco FRACIONADO.
+
+  // Para evitar explosão: limitar a ~15 tacos e usar memoização por acumulado
+  const MAX_TACOS = 15;
+
+  // dp: Map de acumulado (em décimos de mm) -> melhor combo para chegar lá
+  // "melhor" = menos desperdício ao completar com fracionado
+  const SCALE = 10;
+  const T = Math.round(target * SCALE);
+  const K = Math.round(kerf * SCALE);
+
+  // Estado inicial: 0 tacos, acumulado = 0
+  // Ao adicionar taco inteiro i: novo_acum = acum + W_i + K  (inclui kerf do gap seguinte)
+  // A largura colada com N tacos = Σ(larguras_usadas) + (N-1)*kerf
+  //   = acum_sem_ultimo_kerf  ... vamos definir:
+  //   acc = soma das larguras DOS TACOS (sem kerf) já adicionados
+  //   largura_colada_atual = acc + (nTacos-1)*kerf
+  //
+  // Para verificar se podemos completar com 1 taco fracionado do tipo j:
+  //   falta = target - largura_colada_atual - kerf  (o taco j adiciona mais 1 kerf antes dele)
+  //   mas se é o 1º taco: falta = target
+  //   se nTacos > 0: falta = target - acc - nTacos*kerf  (nTacos kerfs: entre os existentes + antes do novo)
+  //   Wait: largura_colada com nTacos+1 tacos = acc + falta + nTacos*kerf
+  //   Queremos isso = target → falta = target - acc - nTacos*kerf
+  //   Condição: minTaco <= falta <= W_j
+
+  let current = new Map(); // accInt -> {combo, nTacos}
+  current.set(0, {combo:[], n:0});
+
+  let bestSolution = null;
+  let bestDesperdicio = Infinity;
+
+  for(let nivel=0; nivel<=MAX_TACOS; nivel++){
+    // Para cada estado atual, verificar se podemos completar com 1 taco fracionado
+    for(const [accInt, {combo, n}] of current){
+      const acc = accInt; // em décimos de mm
+
+      // Tentar completar com 1 taco fracionado de cada tipo
+      for(const tipo of tiposSorted){
+        const W = Math.round(tipo.largura * SCALE);
+        const MIN = Math.round(minTaco * SCALE);
+
+        // falta = target - acc/SCALE - n*kerf  (em unidades reais)
+        // Em inteiros: faltaInt = T - acc - n*K
+        const faltaInt = T - acc - n*K;
+
+        if(faltaInt <= 0){
+          // Já ultrapassamos o target com tacos inteiros — a largura colada já >= target
+          // Verificar se sem nenhum taco adicional a largura está ok
+          // largura_colada = acc/SCALE + (n-1)*kerf
+          if(n > 0){
+            const largColada = acc + (n-1)*K; // em décimos mm
+            if(largColada >= T){
+              const desp = largColada - T;
+              if(desp < bestDesperdicio){
+                bestDesperdicio = desp;
+                bestSolution = combo;
+              }
+            }
+          }
+          continue;
+        }
+
+        // faltaInt > 0: precisamos de mais material
+        if(faltaInt >= MIN && faltaInt <= W){
+          // Podemos cortar este tipo em exatamente faltaInt décimos de mm
+          const larguraUsada = faltaInt / SCALE;
+          const desperdicio = W - faltaInt; // décimos de mm
+          if(desperdicio < bestDesperdicio){
+            bestDesperdicio = desperdicio;
+            bestSolution = [...combo, {...tipo, larguraUsada}];
+          }
+        } else if(faltaInt > W){
+          // Não cabe num único taco fracionado — precisamos de mais tacos inteiros
+          // (tratado na expansão abaixo)
+        }
+        // Se faltaInt < MIN: precisamos ajustar (mas já temos sobra se usarmos o taco inteiro)
+        // Tentar usar o taco inteiro e verificar se sobra é aceitável
+        if(faltaInt < W && faltaInt >= 0){
+          // Usar largura inteira cria sobra de (W - faltaInt)/SCALE mm na CNC
+          const largColada_new = acc + W + (n)*K; // em décimos, com este taco inteiro
+          const desp = largColada_new - T; // décimos
+          if(desp >= 0 && desp < bestDesperdicio){
+            bestDesperdicio = desp;
+            bestSolution = [...combo, {...tipo, larguraUsada: tipo.largura}];
+          }
+        }
+      }
+    }
+
+    // Se já temos solução ótima (desperdício = 0), parar
+    if(bestDesperdicio === 0) break;
+
+    // Expandir: adicionar 1 taco INTEIRO de qualquer tipo
     const next = new Map();
-    for(const [acc, combo] of current){
-      for(const tipo of tiposValidos){
-        const w = Math.round(tipo.largura*SCALE);
-        const newAcc = acc + w + K;
-        if(!next.has(newAcc)){
-          const newCombo = [...combo, tipo];
-          next.set(newAcc, newCombo);
-          if(!dp.has(newAcc)) dp.set(newAcc, newCombo);
-          const real = newAcc/SCALE - kerf;
-          const diff = real - target;
-          if(real >= target && diff < bestDiff){ bestDiff=diff; best={combo:newCombo,real,diff}; }
+    for(const [accInt, {combo, n}] of current){
+      for(const tipo of tiposSorted){
+        const W = Math.round(tipo.largura * SCALE);
+        const newAcc = accInt + W;
+        const newN = n + 1;
+        // Poda: se a largura colada mínima já vai passar muito do target, não expandir
+        // largura_colada com newN tacos inteiros = newAcc + (newN-1)*K
+        // Se isso - T > bestDesperdicio, podar
+        const largColadaMin = newAcc + (newN-1)*K;
+        if(largColadaMin - T > bestDesperdicio) continue;
+        // Poda: se com mais 0 tacos fracionados a falta ainda é maior que a maior tábua * MAX
+        const faltaMin = T - newAcc - newN*K;
+        if(faltaMin > MAX_TACOS * Math.round(tiposSorted[0].largura*SCALE)) continue;
+
+        if(!next.has(newAcc) || next.get(newAcc).n > newN){
+          next.set(newAcc, {combo:[...combo, {...tipo, larguraUsada:tipo.largura}], n:newN});
         }
       }
     }
     if(next.size===0) break;
     current = next;
   }
-  return best;
-}
 
-// ══════════════════════════════════════════════════════════════
-//  RESOLVER COMBINAÇÃO DE LARGURAS (DP de troco)
-// ══════════════════════════════════════════════════════════════
-/*
-  Dado:
-    tiposValidos: lista de tipos de tábua com .largura (podem repetir)
-    target: largura alvo do painel
-    kerf: espessura da serra
-    tolMin: pode faltar até tolMin mm (largura real >= target - tolMin)
-    tolMax: pode sobrar até tolMax mm (largura real <= target + tolMax)
-
-  O valor que um taco contribui para a largura total depende de sua posição:
-    • Primeiro taco: largura
-    • Cada taco adicional: largura + kerf  (a serra fica ANTES deste taco)
-
-  Então a largura acumulada com N tacos é:
-    sum(larguras) + (N-1) * kerf
-  que equivale a dizer que cada taco contribui com:
-    largura[0]  +  (largura[1]+kerf)  +  (largura[2]+kerf)  + ...
-
-  Para o DP, vamos trabalhar com o "valor incremental" de adicionar cada taco:
-    incremento_se_primeiro = largura
-    incremento_se_nao_primeiro = largura + kerf
-
-  Para simplificar, vamos usar a representação:
-    acc += largura + kerf para cada taco, depois subtraímos 1 kerf no final.
-    Ou seja, dp em termos de:  sum(largura_i) + N*kerf  (depois subtrair 1 kerf)
-
-  JANELA VÁLIDA para acc = sum(largura_i) + N*kerf:
-    acc - kerf >= target - tolMin  →  acc >= target - tolMin + kerf
-    acc - kerf <= target + tolMax  →  acc <= target + tolMax + kerf
-
-  Trabalhamos em décimos de mm (×10) para evitar aritmética float.
-*/
-function resolverComboLargura(tiposValidos, target, kerf, tolMin, tolMax){
-  // Modelo de acumulação:
-  //   acc = sum(larguras_i) + N * kerf   (cada taco vem "embutido" com kerf)
-  //   largura_real = acc - kerf           (subtrai o kerf extra do primeiro taco)
-  //
-  // Janela válida para acc:
-  //   target - tolMin <= largura_real <= target + tolMax
-  //   target - tolMin + kerf <= acc <= target + tolMax + kerf
-
-  const SCALE = 10;
-  const T     = Math.round(target * SCALE);
-  const K     = Math.round(kerf   * SCALE);
-  const TolMin = Math.round(tolMin * SCALE);
-  const TolMax = Math.round(tolMax * SCALE);
-  const MAX_TACOS = 25;
-
-  const accMin = T - TolMin + K;
-  const accMax = T + TolMax + K;
-
-  // BFS por nível (número de tacos), guardando todos os acc alcançados
-  const dp = new Map();   // acc -> combo
-  dp.set(0, []);
-  let current = new Map();
-  current.set(0, []);
-
-  for(let nTacos = 1; nTacos <= MAX_TACOS; nTacos++){
-    const next = new Map();
-    for(const [acc, combo] of current){
-      for(const tipo of tiposValidos){
-        const w = Math.round(tipo.largura * SCALE);
-        const newAcc = acc + w + K;
-        // Poda: se já ultrapassou muito o máximo, não continuar
-        if(newAcc > accMax + K * MAX_TACOS) continue;
-        if(!next.has(newAcc)){
-          next.set(newAcc, [...combo, tipo]);
-          if(!dp.has(newAcc)) dp.set(newAcc, [...combo, tipo]);
-        }
-      }
-    }
-    // Buscar a melhor solução na janela (menor diferença ao target, depois menos tacos)
-    let best = null, bestDiff = Infinity;
-    for(const [acc, combo] of dp){
-      if(acc >= accMin && acc <= accMax){
-        const realLarg = acc / SCALE - kerf;
-        const diff = Math.abs(realLarg - target);
-        if(diff < bestDiff || (diff === bestDiff && combo.length < (best||[]).length)){
-          bestDiff = diff;
-          best = combo;
-        }
-      }
-    }
-    if(best !== null) return ordenarComboComBordas(best);
-    if(next.size === 0) break;
-    current = next;
-  }
-  return null; // não encontrou combinação dentro da tolerância
-}
-
-// Reordenar combo para colocar os tacos mais largos nas bordas
-// (bordas da tábua = bordas do painel, a CNC apara de fora)
-function ordenarComboComBordas(combo){
-  if(combo.length <= 1) return combo;
-  const sorted = [...combo].sort((a,b) => b.largura - a.largura);
-  if(sorted.length === 2) return sorted; // maior na esquerda, menor na direita
-  // Maior na borda esq, segundo maior na borda dir, menores no meio
-  const left  = sorted[0];
-  const right = sorted[1];
-  const mid   = sorted.slice(2);
-  return [left, ...mid, right];
+  return bestSolution;
 }
 
 // ── TABS ──
 function tab(t){
   ['montagem','vis','cortes','consumo'].forEach(id=>{
-    document.getElementById('tc-'+id).classList.toggle('on', id===t);
+    document.getElementById('tc-'+id).classList.toggle('on',id===t);
   });
   document.querySelectorAll('.tabs .tab').forEach((b,i)=>{
-    b.classList.toggle('active', ['montagem','vis','cortes','consumo'][i]===t);
+    b.classList.toggle('active',['montagem','vis','cortes','consumo'][i]===t);
   });
 }
 
-// ── CORES ──
-const CORES=['#185FA5','#0F6E56','#854F0B','#993556','#3B6D11','#534AB7','#993C1D','#2A7A7A','#6D4B11','#A3481A'];
+const CORES=['#185FA5','#0F6E56','#854F0B','#993556','#3B6D11','#534AB7','#993C1D','#2A7A7A','#6D4B11','#7A4AB7'];
 function colorMap(resultado){
   const map={};let i=0;
-  resultado.forEach(r=>{ if(!map[r.painel.nome]) map[r.painel.nome]=CORES[i++%CORES.length]; });
+  resultado.forEach(r=>{if(!map[r.painel.nome]) map[r.painel.nome]=CORES[i++%CORES.length];});
+  return map;
+}
+// Cor por tipo de tábua
+function tabuaColorMap(){
+  const map={};let i=0;
+  tabuaRows.forEach(t=>{
+    const k=t.nome+'||'+t.largura;
+    if(!map[k]) map[k]=CORES[i++%CORES.length];
+  });
   return map;
 }
 
-// ── RENDER PRINCIPAL ──
-function renderResultados({resultado, consumoFinal, totalPaineis, totalTabuasUsadas, aprov, estoqueOk, kerf, tolMin, tolMax}){
-  const diffMax = resultado.length ? Math.max(...resultado.map(r=>Math.abs(r.diff))) : 0;
-  const apBadge = aprov>=80?'ok':aprov>=60?'warn':'bad';
+function renderResultados({resultado,consumoFinal,totalPaineis,totalTabuasUsadas,aprov,estoqueOk,kerf}){
+  const sobraMedia = resultado.reduce((s,r)=>s+r.sobraCNC,0)/resultado.length;
+  const apBadge=aprov>=80?'ok':aprov>=60?'warn':'bad';
   document.getElementById('metrics').innerHTML=`
-    <div class="metric"><div class="metric-label">Painéis planejados</div><div class="metric-val">${totalPaineis}</div></div>
+    <div class="metric"><div class="metric-label">Painéis calculados</div><div class="metric-val">${totalPaineis}</div></div>
     <div class="metric"><div class="metric-label">Tábuas físicas</div><div class="metric-val">${totalTabuasUsadas}</div></div>
     <div class="metric"><div class="metric-label">Aproveitamento</div><div class="metric-val">${aprov.toFixed(1)}%</div><div class="metric-sub">${(100-aprov).toFixed(1)}% de perda</div></div>
-    <div class="metric"><div class="metric-label">Estoque</div><div class="metric-val"><span class="badge ${estoqueOk?'ok':'bad'}">${estoqueOk?'suficiente':'insuficiente'}</span></div></div>
-    <div class="metric"><div class="metric-label">Desvio máx. largura</div><div class="metric-val" style="font-size:16px">${diffMax.toFixed(1)} mm</div></div>
+    <div class="metric"><div class="metric-label">Sobra média CNC</div><div class="metric-val" style="font-size:16px">${sobraMedia.toFixed(1)} mm</div><div class="metric-sub">por painel</div></div>
+    <div class="metric"><div class="metric-label">Estoque</div><div class="metric-val"><span class="badge ${estoqueOk?'ok':'bad'}">${estoqueOk?'ok':'insuficiente'}</span></div></div>
   `;
-
-  const cmap = colorMap(resultado);
-  renderMontagem(resultado, kerf);
-  renderVisColagem(resultado, cmap, kerf);
-  renderCortesPorComprimento(consumoFinal, resultado, cmap);
+  const cmap=colorMap(resultado);
+  const tcmap=tabuaColorMap();
+  renderMontagem(resultado);
+  renderVisColagem(resultado, tcmap, kerf);
+  renderCortes(consumoFinal, resultado, cmap);
   renderConsumo(consumoFinal);
 }
 
-// ── TABELA MONTAGEM ──
-function renderMontagem(resultado, kerf){
-  const tbM = document.getElementById('tb-montagem');
-  tbM.innerHTML = '';
-
-  // Agrupar painéis iguais
-  const byPainel = {};
+function renderMontagem(resultado){
+  const tb=document.getElementById('tb-montagem');
+  tb.innerHTML='';
+  const byP={};
   resultado.forEach(r=>{
-    const k = r.painel.nome+'||'+r.painel.largura+'||'+r.painel.comprimento;
-    if(!byPainel[k]) byPainel[k] = {painel:r.painel, ex:r, count:0};
-    byPainel[k].count++;
+    const k=r.painel.nome+'||'+r.painel.largura+'||'+r.painel.comprimento;
+    if(!byP[k]) byP[k]={r,count:0};
+    byP[k].count++;
   });
-
-  Object.values(byPainel).forEach(({painel, ex, count})=>{
-    const comboDesc = ex.combo.map((c,i)=>{
-      const borda = (i===0||i===ex.combo.length-1) ? ' ★' : '';
-      return `${c.largura.toFixed(1)}mm (${c.nome})${borda}`;
+  Object.values(byP).forEach(({r,count})=>{
+    const comboStr=r.combo.map((t,i)=>{
+      const inteiro=Math.abs(t.larguraUsada-t.largura)<0.05;
+      const tag=inteiro?'(inteira)':'(cortada)';
+      return `${t.larguraUsada.toFixed(1)}mm ${tag} [${t.nome}]`;
     }).join(' + ');
-    const diff = ex.diff;
-    const nTacos = ex.combo.length;
-    const badge = Math.abs(diff)<1?'ok':Math.abs(diff)<3?'warn':'bad';
-
-    // Tacos por tábua: mínimo entre os tipos usados
-    const tacosInfo = ex.combo.map(c=>`${c.tacosPerPeca}/tábua (${c.nome})`);
-    // simplificar se todos iguais
-    const unique = [...new Set(tacosInfo)];
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${painel.nome}</td>
-      <td>${painel.largura} mm</td>
-      <td>${painel.comprimento} mm</td>
+    const badge=r.sobraCNC<1?'ok':r.sobraCNC<10?'warn':'neutral';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${r.painel.nome}</td>
+      <td>${r.painel.largura} mm</td>
+      <td>${r.painel.comprimento} mm</td>
       <td>${count}</td>
-      <td style="font-size:12px;max-width:260px">${comboDesc}</td>
-      <td>${nTacos}</td>
-      <td>${ex.larguraReal.toFixed(1)} mm</td>
-      <td><span class="badge ${badge}">${diff>=0?'+':''}${diff.toFixed(1)}mm</span></td>
-      <td style="font-size:11px;color:var(--tx3)">${unique.join(', ')}</td>
+      <td style="font-size:12px">${comboStr}</td>
+      <td>${r.larguraColada.toFixed(1)} mm</td>
+      <td><span class="badge ${badge}">+${r.sobraCNC.toFixed(1)}mm</span></td>
+      <td style="font-size:11px;color:var(--tx3)">${r.combo.map(t=>t.tacosPerPeca+'/tábua').join(', ')}</td>
     `;
-    tbM.appendChild(tr);
+    tb.appendChild(tr);
   });
 }
 
-// ── VISUALIZAÇÃO DE COLAGEM (lateral, mostra larguras) ──
-function renderVisColagem(resultado, cmap, kerf){
-  const container = document.getElementById('vis-content');
-  container.innerHTML = '';
-
-  // Agrupar por tipo de painel
-  const byPainel = {};
+function renderVisColagem(resultado, tcmap, kerf){
+  const container=document.getElementById('vis-content');
+  container.innerHTML='';
+  const byP={};
   resultado.forEach(r=>{
-    const k = r.painel.nome+'||'+r.painel.largura+'||'+r.painel.comprimento;
-    if(!byPainel[k]) byPainel[k] = {painel:r.painel, ex:r, count:0};
-    byPainel[k].count++;
+    const k=r.painel.nome+'||'+r.painel.largura+'||'+r.painel.comprimento;
+    if(!byP[k]) byP[k]={r,count:0};
+    byP[k].count++;
   });
-
-  Object.values(byPainel).forEach(({painel, ex, count})=>{
-    const block = document.createElement('div');
-    block.className = 'painel-vis-block';
-
-    const title = document.createElement('div');
-    title.className = 'painel-vis-title';
-    title.innerHTML = `<span style="color:var(--tx)">${painel.nome}</span>
-      <span>— ${count}× — ${painel.largura}×${painel.comprimento}mm — largura real: ${ex.larguraReal.toFixed(1)}mm
-      <span class="badge ${Math.abs(ex.diff)<1?'ok':Math.abs(ex.diff)<3?'warn':'bad'}" style="margin-left:4px">${ex.diff>=0?'+':''}${ex.diff.toFixed(1)}mm</span></span>`;
-    block.appendChild(title);
-
-    // Desenhar SVG da colagem (vista lateral — largura na horizontal)
-    const PX_PER_MM = 1.5;
-    const H = 60;
-    const totalW = ex.combo.reduce((s,c)=>s+c.largura,0) + (ex.combo.length-1)*kerf;
-    const svgW = Math.round(totalW * PX_PER_MM) + 2;
-
-    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-    svg.setAttribute('width', svgW);
-    svg.setAttribute('height', H+20);
-    svg.setAttribute('viewBox', `0 0 ${svgW} ${H+20}`);
-    svg.style.display = 'block';
-    svg.style.maxWidth = '100%';
-
-    let x = 0;
-    ex.combo.forEach((c, i)=>{
-      const w = Math.round(c.largura * PX_PER_MM);
-      const isBorda = (i===0 || i===ex.combo.length-1);
-      const cor = CORES[tabuaRows.findIndex(t=>t.nome===c.nome&&t.largura===c.largura&&t.comprimento===c.comprimento) % CORES.length] || '#378ADD';
-
-      // retângulo do taco
-      const rect = ns('rect',{x:x+1, y:0, width:w-2, height:H, fill:cor, rx:2, opacity:isBorda?'1':'0.8'});
-      svg.appendChild(rect);
-
-      // Label largura
-      if(w > 18){
-        const txt = ns('text',{x:x+w/2, y:H/2-4, 'text-anchor':'middle', fill:'#fff', 'font-size':'10', 'font-weight':'600', 'font-family':'sans-serif'});
-        txt.textContent = c.largura.toFixed(1);
-        svg.appendChild(txt);
-        const txt2 = ns('text',{x:x+w/2, y:H/2+8, 'text-anchor':'middle', fill:'rgba(255,255,255,.75)', 'font-size':'9', 'font-family':'sans-serif'});
-        txt2.textContent = c.nome.substring(0,10);
-        svg.appendChild(txt2);
+  Object.values(byP).forEach(({r,count})=>{
+    const block=document.createElement('div');
+    block.className='vis-block';
+    const PX=1.8, H=64;
+    const totalW=r.combo.reduce((s,t)=>s+t.larguraUsada,0)+(r.combo.length-1)*kerf;
+    const svgW=Math.max(Math.round(totalW*PX)+4, 100);
+    block.innerHTML=`<div class="vis-title">${r.painel.nome} <span style="font-weight:400;color:var(--tx2)">— ${count}× — alvo ${r.painel.largura}mm — colado ${r.larguraColada.toFixed(1)}mm — sobra CNC <span style="color:${r.sobraCNC<1?'var(--green-tx)':r.sobraCNC<10?'var(--amber-tx)':'var(--tx2)'}">+${r.sobraCNC.toFixed(1)}mm</span></span></div>`;
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('width',svgW);svg.setAttribute('height',H+28);
+    svg.setAttribute('viewBox',`0 0 ${svgW} ${H+28}`);
+    svg.style.cssText='display:block;max-width:100%';
+    let x=0;
+    r.combo.forEach((taco,i)=>{
+      const inteiro=Math.abs(taco.larguraUsada-taco.largura)<0.05;
+      const usadoPx=Math.round(taco.larguraUsada*PX);
+      const totalPx=Math.round(taco.largura*PX);
+      const k=taco.nome+'||'+taco.largura;
+      const cor=tcmap[k]||CORES[i%CORES.length];
+      // Taco usado
+      svg.appendChild(ns('rect',{x:x+1,y:0,width:Math.max(usadoPx-1,2),height:H,fill:cor,rx:2,opacity:'0.9'}));
+      // Sobra de largura da tábua (se cortada)
+      if(!inteiro){
+        const sobraPx=totalPx-usadoPx;
+        if(sobraPx>1){
+          svg.appendChild(ns('rect',{x:x+usadoPx,y:0,width:sobraPx,height:H,fill:cor,rx:2,opacity:'0.22'}));
+          if(sobraPx>14){
+            const st=ns('text',{x:x+usadoPx+sobraPx/2,y:H/2+4,'text-anchor':'middle',fill:cor,'font-size':'8','font-family':'sans-serif'});
+            st.textContent=(taco.largura-taco.larguraUsada).toFixed(1);
+            svg.appendChild(st);
+          }
+        }
       }
-
-      // Indicador de borda (★)
-      if(isBorda && w > 10){
-        const star = ns('text',{x:x+w/2, y:H-4, 'text-anchor':'middle', fill:'rgba(255,255,255,.9)', 'font-size':'8', 'font-family':'sans-serif'});
-        star.textContent = 'BORDA';
-        svg.appendChild(star);
+      // Labels
+      if(usadoPx>24){
+        const t1=ns('text',{x:x+usadoPx/2,y:H/2-4,'text-anchor':'middle',fill:'#fff','font-size':'10','font-weight':'600','font-family':'sans-serif'});
+        t1.textContent=taco.larguraUsada.toFixed(1)+'mm';
+        svg.appendChild(t1);
+        const t2=ns('text',{x:x+usadoPx/2,y:H/2+8,'text-anchor':'middle',fill:'rgba(255,255,255,.75)','font-size':'8','font-family':'sans-serif'});
+        t2.textContent=taco.nome.substring(0,12)+(inteiro?' ✦':' ✂');
+        svg.appendChild(t2);
       }
-
-      x += w;
-
-      // Serra entre tacos
-      if(i < ex.combo.length-1){
-        const kW = Math.max(Math.round(kerf * PX_PER_MM), 2);
-        const kRect = ns('rect',{x:x, y:0, width:kW, height:H, fill:'#ccc', opacity:'0.5'});
-        svg.appendChild(kRect);
-        x += kW;
+      x+=Math.round(taco.largura*PX);
+      // Serra
+      if(i<r.combo.length-1){
+        const kPx=Math.max(Math.round(kerf*PX),2);
+        svg.appendChild(ns('rect',{x:x,y:4,width:kPx,height:H-8,fill:'#bbb',opacity:'0.5'}));
+        x+=kPx;
       }
     });
-
-    // Seta e medida total
-    const arrowY = H+12;
-    svg.setAttribute('height', H+22);
-    const line = ns('line',{x1:0, y1:arrowY, x2:svgW, y2:arrowY, stroke:'var(--tx3)', 'stroke-width':'0.5', 'stroke-dasharray':'3,3'});
-    svg.appendChild(line);
-    const measure = ns('text',{x:svgW/2, y:arrowY-2, 'text-anchor':'middle', fill:'var(--tx3)', 'font-size':'10', 'font-family':'sans-serif'});
-    measure.textContent = `${ex.larguraReal.toFixed(1)} mm`;
-    svg.appendChild(measure);
-
+    // Linha de medida
+    const W_usado=Math.round(r.painel.largura*PX);
+    svg.appendChild(ns('line',{x1:0,y1:H+8,x2:W_usado,y2:H+8,stroke:'var(--tx)',  'stroke-width':'1.5'}));
+    svg.appendChild(ns('line',{x1:0,y1:H+4,x2:0,y2:H+12,stroke:'var(--tx)','stroke-width':'1.5'}));
+    svg.appendChild(ns('line',{x1:W_usado,y1:H+4,x2:W_usado,y2:H+12,stroke:'var(--tx)','stroke-width':'1.5'}));
+    const mt=ns('text',{x:W_usado/2,y:H+22,'text-anchor':'middle',fill:'var(--tx)','font-size':'10','font-weight':'500','font-family':'sans-serif'});
+    mt.textContent=r.painel.largura+'mm (alvo)';
+    svg.appendChild(mt);
+    // Linha colada total
+    if(r.sobraCNC>0.5){
+      const W_col=Math.round(r.larguraColada*PX);
+      svg.appendChild(ns('line',{x1:W_usado,y1:H+8,x2:W_col,y2:H+8,stroke:'var(--amber-tx)','stroke-width':'1.5','stroke-dasharray':'3,2'}));
+      const sc=ns('text',{x:W_usado+(W_col-W_usado)/2,y:H+22,'text-anchor':'middle',fill:'var(--amber-tx)','font-size':'8','font-family':'sans-serif'});
+      sc.textContent='+'+r.sobraCNC.toFixed(1);
+      svg.appendChild(sc);
+    }
     block.appendChild(svg);
-
-    const note = document.createElement('div');
-    note.className = 'vis-scale-note';
-    note.innerHTML = `★ bordas da tábua · serra: ${kerf}mm entre cada taco · comprimento de cada taco: ${painel.comprimento}mm`;
-    block.appendChild(note);
+    // Legenda
+    const legDiv=document.createElement('div');
+    legDiv.className='legend';
+    const vistos=new Set();
+    r.combo.forEach(t=>{
+      const k=t.nome+'||'+t.largura;
+      if(!vistos.has(k)){
+        vistos.add(k);
+        const inteiro=Math.abs(t.larguraUsada-t.largura)<0.05;
+        const item=document.createElement('div');
+        item.className='leg-item';
+        item.innerHTML=`<span class="leg-sw" style="background:${tcmap[k]||'#888'}"></span>${t.nome} (${t.largura}mm máx) ${inteiro?'✦ inteira':'✂ cortada em '+t.larguraUsada.toFixed(1)+'mm'}`;
+        legDiv.appendChild(item);
+      }
+    });
+    block.appendChild(legDiv);
     container.appendChild(block);
   });
 }
 
-// ── CORTES POR COMPRIMENTO ──
-// Para cada tipo de tábua, mostra visualmente quantos tacos saem de cada tábua física
-function renderCortesPorComprimento(consumoFinal, resultado, cmap){
-  const container = document.getElementById('cortes-content');
-  container.innerHTML = '';
-
-  // Para cada tipo de tábua, saber quais painéis usam tacos dela (e em que quantidade)
-  const tacosPorTabua = {}; // chave: nome||larg||comp
+function renderCortes(consumoFinal, resultado, cmap){
+  const container=document.getElementById('cortes-content');
+  container.innerHTML='';
+  // Para cada tipo de tábua, montar lista de tacos que saem dela
+  const tacosPorTabua={};
   resultado.forEach(r=>{
-    r.combo.forEach(c=>{
-      const k = `${c.nome}||${c.largura}||${c.comprimento}`;
-      if(!tacosPorTabua[k]) tacosPorTabua[k] = [];
-      tacosPorTabua[k].push({painel: r.painel, comp: r.painel.comprimento, tacosPerPeca: c.tacosPerPeca});
+    r.combo.forEach(taco=>{
+      const k=`${taco.nome}||${taco.largura}||${taco.comprimento}`;
+      if(!tacosPorTabua[k]) tacosPorTabua[k]=[];
+      tacosPorTabua[k].push({painel:r.painel, comp:r.painel.comprimento, largUsada:taco.larguraUsada, largMax:taco.largura, tacosPerPeca:taco.tacosPerPeca});
     });
   });
-
   consumoFinal.forEach(cf=>{
-    const k = `${cf.tabua.nome}||${cf.tabua.largura}||${cf.tabua.comprimento}`;
-    const tacos = tacosPorTabua[k] || [];
-
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'margin-bottom:18px;padding-bottom:14px;border-bottom:.5px solid var(--br)';
-
-    const title = document.createElement('div');
-    title.style.cssText = 'font-size:12px;font-weight:500;color:var(--tx2);margin-bottom:8px';
-    title.innerHTML = `<strong>${cf.tabua.nome}</strong> — ${cf.tabua.largura}mm × ${cf.tabua.comprimento}mm — usando ${cf.fisicas} tábua(s) física(s) (${cf.tacosPerPeca} tacos de ${cf.compPainel}mm por tábua)`;
-    wrap.appendChild(title);
-
-    const PX_PER_MM = Math.min(600 / cf.tabua.comprimento, 0.6);
-    const svgW = Math.round(cf.tabua.comprimento * PX_PER_MM);
-    const H = 32;
-
-    for(let fi = 1; fi <= cf.fisicas; fi++){
-      const row = document.createElement('div');
-      row.className = 'comp-row';
-
-      const lbl = document.createElement('div');
-      lbl.className = 'comp-label';
-      lbl.textContent = `Tábua #${fi}`;
+    const k=`${cf.tabua.nome}||${cf.tabua.largura}||${cf.tabua.comprimento}`;
+    const tacos=tacosPorTabua[k]||[];
+    const wrap=document.createElement('div');
+    wrap.className='vis-block';
+    wrap.innerHTML=`<div class="vis-title">${cf.tabua.nome} — larg. máx. ${cf.tabua.largura}mm × comp. ${cf.tabua.comprimento}mm — <strong>${cf.fisicas}</strong> tábua(s) — ${cf.tacosPerPeca} taco(s) de ${cf.compPainel}mm por tábua</div>`;
+    const PX=Math.min(580/cf.tabua.comprimento, 0.55);
+    const H=34;
+    for(let fi=1;fi<=cf.fisicas;fi++){
+      const row=document.createElement('div');
+      row.className='comp-row';
+      const lbl=document.createElement('div');
+      lbl.className='comp-label';
+      lbl.textContent='Tábua #'+fi;
       row.appendChild(lbl);
-
-      const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-      svg.setAttribute('width', svgW+2);
-      svg.setAttribute('height', H);
-      svg.setAttribute('viewBox', `0 0 ${svgW+2} ${H}`);
-
-      // fundo
-      svg.appendChild(ns('rect',{x:0, y:0, width:svgW, height:H, fill:'#D3D1C7', rx:3}));
-
-      const start = (fi-1)*cf.tacosPerPeca;
-      const slice = tacos.slice(start, start + cf.tacosPerPeca);
-      let x = 0;
-
-      slice.forEach((taco, ti)=>{
-        const wPx = Math.round(taco.comp * PX_PER_MM);
-        const cor = cmap[taco.painel.nome] || '#378ADD';
-        svg.appendChild(ns('rect',{x:x, y:2, width:Math.max(wPx-1,2), height:H-4, fill:cor, rx:2, opacity:'0.85'}));
-        if(wPx > 30){
-          const t1 = ns('text',{x:x+wPx/2, y:H/2+1, 'text-anchor':'middle', fill:'#fff', 'font-size':'9', 'font-weight':'500', 'font-family':'sans-serif'});
-          t1.textContent = taco.painel.nome.substring(0,10);
+      const svgW=Math.round(cf.tabua.comprimento*PX);
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('width',svgW);svg.setAttribute('height',H);
+      svg.setAttribute('viewBox',`0 0 ${svgW} ${H}`);
+      svg.appendChild(ns('rect',{x:0,y:0,width:svgW,height:H,fill:'#D3D1C7',rx:3}));
+      const start=(fi-1)*cf.tacosPerPeca;
+      const slice=tacos.slice(start,start+cf.tacosPerPeca);
+      let x=0;
+      slice.forEach((taco,ti)=>{
+        const tacoPx=Math.round(taco.comp*PX);
+        const cor=cmap[taco.painel.nome]||CORES[ti%CORES.length];
+        svg.appendChild(ns('rect',{x:x,y:2,width:Math.max(tacoPx-1,2),height:H-4,fill:cor,rx:2,opacity:'0.85'}));
+        if(tacoPx>36){
+          const t1=ns('text',{x:x+tacoPx/2,y:H/2+1,'text-anchor':'middle',fill:'#fff','font-size':'9','font-weight':'500','font-family':'sans-serif'});
+          t1.textContent=taco.painel.nome.substring(0,10);
           svg.appendChild(t1);
-          const t2 = ns('text',{x:x+wPx/2, y:H/2+10, 'text-anchor':'middle', fill:'rgba(255,255,255,.7)', 'font-size':'8', 'font-family':'sans-serif'});
-          t2.textContent = taco.comp+'mm';
+          const t2=ns('text',{x:x+tacoPx/2,y:H/2+10,'text-anchor':'middle',fill:'rgba(255,255,255,.7)','font-size':'8','font-family':'sans-serif'});
+          t2.textContent=taco.comp+'mm × '+taco.largUsada.toFixed(1)+'mm';
           svg.appendChild(t2);
         }
-        x += wPx;
-        if(ti < slice.length-1){
-          // linha de corte entre tacos
-          svg.appendChild(ns('line',{x1:x, y1:0, x2:x, y2:H, stroke:'#fff', 'stroke-width':'1.5', opacity:'0.7'}));
-        }
+        x+=tacoPx;
+        if(ti<slice.length-1) svg.appendChild(ns('line',{x1:x,y1:0,x2:x,y2:H,stroke:'#fff','stroke-width':'1','opacity':'0.6'}));
       });
-
-      // sobra de comprimento
-      if(x < svgW){
-        const sobraPx = svgW - x;
-        svg.appendChild(ns('rect',{x:x, y:2, width:sobraPx, height:H-4, fill:'#F09595', rx:2, opacity:'0.6'}));
-        const sobramm = cf.tabua.comprimento - slice.reduce((s,t)=>s+t.comp,0);
-        if(sobraPx > 20){
-          const wt = ns('text',{x:x+sobraPx/2, y:H/2+4, 'text-anchor':'middle', fill:'#A32D2D', 'font-size':'8', 'font-family':'sans-serif'});
-          wt.textContent = sobramm.toFixed(0)+'mm';
-          svg.appendChild(wt);
-        }
+      if(x<svgW){
+        const sp=svgW-x;
+        svg.appendChild(ns('rect',{x:x,y:2,width:sp,height:H-4,fill:'#F09595',rx:2,opacity:'0.6'}));
+        const sm=cf.tabua.comprimento-slice.reduce((s,t)=>s+t.comp,0);
+        if(sp>18){const wt=ns('text',{x:x+sp/2,y:H/2+4,'text-anchor':'middle',fill:'#A32D2D','font-size':'8','font-family':'sans-serif'});wt.textContent=sm+'mm';svg.appendChild(wt);}
       }
-
       row.appendChild(svg);
       wrap.appendChild(row);
     }
-
-    // legenda
-    const legDiv = document.createElement('div');
-    legDiv.className = 'legend';
-    const vistos = new Set();
+    const legDiv=document.createElement('div');legDiv.className='legend';
+    const vistos=new Set();
     tacos.forEach(t=>{
       if(!vistos.has(t.painel.nome)){
         vistos.add(t.painel.nome);
-        const item = document.createElement('div');
-        item.className = 'leg-item';
-        item.innerHTML = `<span class="leg-sw" style="background:${cmap[t.painel.nome]}"></span>${t.painel.nome} (${t.comp}mm)`;
+        const item=document.createElement('div');item.className='leg-item';
+        item.innerHTML=`<span class="leg-sw" style="background:${cmap[t.painel.nome]}"></span>${t.painel.nome} (${t.comp}mm comp. × ${t.largUsada.toFixed(1)}mm larg.)`;
         legDiv.appendChild(item);
       }
     });
-    const w1 = document.createElement('div');
-    w1.className = 'leg-item';
-    w1.innerHTML = `<span class="leg-sw" style="background:#F09595;border:1px solid #E24B4A"></span>Sobra`;
+    const w1=document.createElement('div');w1.className='leg-item';
+    w1.innerHTML=`<span class="leg-sw" style="background:#F09595;border:1px solid #E24B4A"></span>Sobra de comprimento`;
     legDiv.appendChild(w1);
     wrap.appendChild(legDiv);
     container.appendChild(wrap);
   });
 }
 
-// ── TABELA CONSUMO ──
 function renderConsumo(consumoFinal){
-  const tbC = document.getElementById('tb-consumo');
-  tbC.innerHTML = '';
+  const tb=document.getElementById('tb-consumo');
+  tb.innerHTML='';
   consumoFinal.forEach(c=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${c.tabua.nome}</td>
-      <td>${c.tabua.largura.toFixed(1)} mm</td>
-      <td>${c.tabua.comprimento} mm</td>
-      <td>${c.estqDisp}</td>
-      <td><strong>${c.fisicas}</strong></td>
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${c.tabua.nome}</td><td>${c.tabua.largura.toFixed(1)} mm</td><td>${c.tabua.comprimento} mm</td>
+      <td>${c.estq}</td><td><strong>${c.fisicas}</strong></td>
       <td><span class="badge ${c.sobra>=0?'ok':'bad'}">${c.sobra>=0?'+'+c.sobra:c.sobra}</span></td>
-      <td>${c.tacosPerPeca} tacos de ${c.compPainel}mm</td>
-    `;
-    tbC.appendChild(tr);
+      <td>${c.tacosPerPeca} tacos de ${c.compPainel}mm</td>`;
+    tb.appendChild(tr);
   });
 }
 
-// ── SVG HELPER ──
 function ns(tag,attrs){
   const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
   Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
   return el;
 }
 
-// ── EXPORTAR ──
 function exportar(){
   if(!lastResult) return;
-  const {resultado, consumoFinal, aprov, kerf} = lastResult;
-
-  // Aba: Montagem de painéis
-  const montagem=[['Painel','Largura alvo (mm)','Comp. alvo (mm)','Qtd','Composição de tacos (da esquerda para direita)','Nº de tacos','Largura real (mm)','Diferença (mm)','Tacos por tábua']];
+  const {resultado,consumoFinal,aprov}=lastResult;
+  const mont=[['Painel','Larg. alvo (mm)','Comp. (mm)','Qtd','Composição de tacos','Larg. colada (mm)','Sobra CNC (mm)']];
   const byP={};
-  resultado.forEach(r=>{
-    const k=r.painel.nome+'||'+r.painel.largura+'||'+r.painel.comprimento;
-    if(!byP[k]) byP[k]={painel:r.painel,ex:r,count:0};
-    byP[k].count++;
+  resultado.forEach(r=>{const k=r.painel.nome+'||'+r.painel.largura+'||'+r.painel.comprimento;if(!byP[k]) byP[k]={r,count:0};byP[k].count++;});
+  Object.values(byP).forEach(({r,count})=>{
+    mont.push([r.painel.nome,r.painel.largura,r.painel.comprimento,count,
+      r.combo.map(t=>`${t.larguraUsada.toFixed(1)}mm (${t.nome}${Math.abs(t.larguraUsada-t.largura)<0.05?' inteira':' cortada'})`).join(' + '),
+      r.larguraColada.toFixed(1),r.sobraCNC.toFixed(1)]);
   });
-  Object.values(byP).forEach(({painel,ex,count})=>{
-    const comboDesc = ex.combo.map((c,i)=>{
-      const borda = (i===0||i===ex.combo.length-1)?' (borda)':'';
-      return c.largura.toFixed(1)+'mm ('+c.nome+')'+borda;
-    }).join(' + ');
-    montagem.push([
-      painel.nome, painel.largura, painel.comprimento, count,
-      comboDesc, ex.combo.length,
-      ex.larguraReal.toFixed(1), ex.diff.toFixed(1),
-      ex.combo.map(c=>c.tacosPerPeca+'/tábua').join(', ')
-    ]);
-  });
-
-  // Aba: Consumo de tábuas
-  const consumo=[['Tipo de tábua','Largura (mm)','Comprimento (mm)','Comp. painel (mm)','Tacos p/ tábua','Tacos total','Tábuas físicas','Estoque','Sobra estoque']];
-  consumoFinal.forEach(c=>consumo.push([
-    c.tabua.nome, c.tabua.largura, c.tabua.comprimento,
-    c.compPainel, c.tacosPerPeca, c.totalTacos,
-    c.fisicas, c.estqDisp, c.sobra
-  ]));
-  consumo.push([]);
-  consumo.push(['Aproveitamento (%)', aprov.toFixed(1)]);
-
+  const cons=[['Tipo','Larg. máx. (mm)','Comp. (mm)','Comp. painel (mm)','Tacos/tábua','Total tacos','Tábuas físicas','Estoque','Sobra estoque']];
+  consumoFinal.forEach(c=>cons.push([c.tabua.nome,c.tabua.largura,c.tabua.comprimento,c.compPainel,c.tacosPerPeca,c.totalTacos,c.fisicas,c.estq,c.sobra]));
+  cons.push([],['Aproveitamento (%)',aprov.toFixed(1)]);
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(montagem), 'Montagem painéis');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(consumo), 'Consumo tábuas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(mont),'Montagem painéis');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cons),'Consumo tábuas');
   XLSX.writeFile(wb,'plano_de_corte.xlsx');
 }
 
