@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Otimizador de Plano de Corte</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-sec: #f5f4f0;
+      --bg-ter: #efede8;
+      --text: #1a1a18;
+      --text-sec: #5f5e5a;
+      --text-ter: #888780;
+      --border: rgba(0,0,0,0.12);
+      --border-sec: rgba(0,0,0,0.22);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --green-bg: #EAF3DE; --green-text: #3B6D11;
+      --amber-bg: #FAEEDA; --amber-text: #854F0B;
+      --red-bg: #FCEBEB; --red-text: #A32D2D;
+      --blue-bg: #E6F1FB; --blue-text: #185FA5;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg-sec: #252523;
+        --bg-ter: #2e2e2b;
+        --text: #f0ede8;
+        --text-sec: #a8a69f;
+        --text-ter: #6b6a65;
+        --border: rgba(255,255,255,0.10);
+        --border-sec: rgba(255,255,255,0.18);
+        --green-bg: #173404; --green-text: #C0DD97;
+        --amber-bg: #412402; --amber-text: #FAC775;
+        --red-bg: #501313; --red-text: #F7C1C1;
+        --blue-bg: #042C53; --blue-text: #B5D4F4;
+      }
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-ter);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .logo {
+      width: 36px; height: 36px;
+      background: var(--text);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+    }
+    header .logo i { color: var(--bg); font-size: 20px; }
+    header h1 { font-size: 17px; font-weight: 500; color: var(--text); }
+    header span { font-size: 13px; color: var(--text-sec); }
+
+    main { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    .section { margin-bottom: 1.5rem; }
+
+    .card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--text); color: var(--bg);
+      font-size: 12px; font-weight: 500;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 15px; font-weight: 500; }
+
+    .config-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .config-row label { font-size: 13px; color: var(--text-sec); display: block; margin-bottom: 4px; }
+    .config-row input {
+      width: 100%; padding: 8px 10px; font-size: 14px;
+      border: 0.5px solid var(--border-sec);
+      border-radius: var(--radius-md);
+      background: var(--bg); color: var(--text);
+      outline: none; transition: border-color 0.15s;
+    }
+    .config-row input:focus { border-color: var(--text); }
+
+    .hint { font-size: 12px; color: var(--text-ter); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+
+    .tabs { display: flex; gap: 2px; margin-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
+    .tab {
+      padding: 8px 16px; font-size: 13px; cursor: pointer;
+      border: none; background: transparent; color: var(--text-sec);
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      font-family: var(--font); transition: color 0.12s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .upload-area {
+      border: 1.5px dashed var(--border-sec);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .upload-area:hover { background: var(--bg-sec); }
+    .upload-area.drag-over { background: var(--bg-sec); border-color: var(--text); }
+    .upload-icon { font-size: 36px; color: var(--text-ter); margin-bottom: 8px; display: block; }
+    .upload-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+    .upload-sub { font-size: 13px; color: var(--text-sec); margin-bottom: 14px; }
+
+    .btn {
+      background: transparent;
+      border: 0.5px solid var(--border-sec);
+      border-radius: var(--radius-md);
+      padding: 8px 16px; font-size: 14px;
+      cursor: pointer; color: var(--text);
+      font-family: var(--font);
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: background 0.12s, transform 0.1s;
+    }
+    .btn:hover { background: var(--bg-sec); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary {
+      background: var(--text); color: var(--bg);
+      border-color: var(--text); padding: 10px 24px; font-size: 15px;
+    }
+    .btn-primary:hover { opacity: 0.85; background: var(--text); }
+    .btn-sm { font-size: 12px; padding: 5px 10px; }
+
+    .template-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+    .template-row span { font-size: 12px; color: var(--text-sec); }
+
+    #preview-area { margin-top: 1rem; display: none; }
+    #preview-area > p { font-size: 13px; color: var(--text-sec); margin-bottom: 8px; }
+
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      font-weight: 500; font-size: 11px; color: var(--text-sec);
+      text-align: left; padding: 7px 10px;
+      border-bottom: 0.5px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 7px 10px;
+      border-bottom: 0.5px solid var(--border);
+      color: var(--text);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-sec); }
+
+    .badge {
+      display: inline-block; font-size: 11px;
+      padding: 2px 9px; border-radius: 99px; font-weight: 500;
+    }
+    .badge-ok { background: var(--green-bg); color: var(--green-text); }
+    .badge-warn { background: var(--amber-bg); color: var(--amber-text); }
+    .badge-bad { background: var(--red-bg); color: var(--red-text); }
+    .badge-neutral { background: var(--bg-sec); color: var(--text-sec); }
+
+    .calc-zone { text-align: center; padding: 1.5rem 0; }
+    .calc-status { font-size: 13px; color: var(--text-ter); margin-top: 8px; }
+
+    .results-section { display: none; }
+    .results-section.visible { display: block; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px; margin-bottom: 1.5rem;
+    }
+    .metric {
+      background: var(--bg-sec); border-radius: var(--radius-md); padding: 1rem;
+    }
+    .metric-label { font-size: 12px; color: var(--text-sec); margin-bottom: 4px; }
+    .metric-val { font-size: 24px; font-weight: 500; color: var(--text); }
+    .metric-sub { font-size: 11px; color: var(--text-ter); margin-top: 2px; }
+
+    .plank-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .plank-label { font-size: 12px; color: var(--text-sec); min-width: 68px; text-align: right; flex-shrink: 0; }
+    .plank-svg-wrap { flex: 1; overflow: hidden; }
+
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; color: var(--text-sec);
+    }
+    .legend-swatch {
+      width: 11px; height: 11px; border-radius: 2px; display: inline-block;
+    }
+
+    .manual-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 44px;
+      gap: 6px; margin-bottom: 6px;
+    }
+    .manual-grid input {
+      padding: 6px 8px; font-size: 13px;
+      border: 0.5px solid var(--border-sec);
+      border-radius: var(--radius-md);
+      background: var(--bg); color: var(--text);
+      width: 100%; font-family: var(--font);
+      outline: none;
+    }
+    .manual-grid input:focus { border-color: var(--text); }
+    .manual-header { font-size: 11px; color: var(--text-sec); padding: 0 2px; display: flex; align-items: flex-end; }
+
+    .results-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; justify-content: flex-end; }
+
+    footer {
+      text-align: center; padding: 2rem;
+      font-size: 12px; color: var(--text-ter);
+      border-top: 0.5px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><i class="ti ti-cut"></i></div>
+  <div>
+    <h1>Otimizador de Plano de Corte</h1>
+    <span>Minimize desperdício de madeira</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP 1: Parâmetros -->
+  <div class="section card">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <p class="step-title">Parâmetros da serra e da tábua</p>
+    </div>
+    <div class="config-row">
+      <div>
+        <label>Constante de serra (mm)</label>
+        <input type="number" id="saw-kerf" value="3" min="0" step="0.5">
+      </div>
+      <div>
+        <label>Recorte lateral — cada lado (mm)</label>
+        <input type="number" id="side-cut" value="3" min="0" step="0.5">
+      </div>
+      <div>
+        <label>Largura da tábua (mm)</label>
+        <input type="number" id="plank-w" value="101.6" min="1" step="0.1">
+      </div>
+      <div>
+        <label>Comprimento da tábua (mm)</label>
+        <input type="number" id="plank-l" value="2600" min="1">
+      </div>
+    </div>
+    <p class="hint">
+      <i class="ti ti-info-circle"></i>
+      Largura útil = largura da tábua − (2 × recorte lateral). A lateral da tábua pode ficar na lateral do painel — a CNC acerta na etapa seguinte.
+    </p>
+  </div>
+
+  <!-- STEP 2: Painéis -->
+  <div class="section card">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <p class="step-title">Lista de painéis</p>
+    </div>
+
+    <div class="tabs" id="input-tabs">
+      <button class="tab active" onclick="switchTab('import')">Importar planilha</button>
+      <button class="tab" onclick="switchTab('manual')">Entrada manual</button>
+    </div>
+
+    <!-- Importar -->
+    <div id="tab-import" class="tab-content active">
+      <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <i class="ti ti-file-spreadsheet upload-icon"></i>
+        <p class="upload-title">Arraste o arquivo aqui ou clique para selecionar</p>
+        <p class="upload-sub">Formatos aceitos: .xlsx, .xls, .csv</p>
+        <button class="btn" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
+          <i class="ti ti-upload"></i> Escolher arquivo
+        </button>
+      </div>
+      <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display:none">
+      <div class="template-row">
+        <span>Precisa de modelo?</span>
+        <button class="btn btn-sm" onclick="downloadTemplate()">
+          <i class="ti ti-download"></i> Baixar planilha modelo
+        </button>
+      </div>
+      <p class="hint" style="margin-top:10px">
+        <i class="ti ti-table"></i>
+        Colunas esperadas: <strong>produto</strong>, <strong>largura_painel</strong> (mm), <strong>comprimento_painel</strong> (mm), <strong>espessura</strong> (mm), <strong>qtd</strong>
+      </p>
+
+      <div id="preview-area">
+        <p>Prévia dos dados importados:</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr id="preview-head"></tr></thead>
+            <tbody id="preview-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual -->
+    <div id="tab-manual" class="tab-content">
+      <div class="manual-grid" style="margin-bottom:4px">
+        <span class="manual-header">Produto</span>
+        <span class="manual-header">Largura (mm)</span>
+        <span class="manual-header">Comp. (mm)</span>
+        <span class="manual-header">Qtd</span>
+        <span></span>
+      </div>
+      <div id="manual-rows"></div>
+      <button class="btn btn-sm" style="margin-top:8px" onclick="addManualRow()">
+        <i class="ti ti-plus"></i> Adicionar painel
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Calcular -->
+  <div class="section calc-zone">
+    <button class="btn btn-primary" id="calc-btn" onclick="calculate()" disabled>
+      <i class="ti ti-cut"></i> Calcular plano de corte
+    </button>
+    <p class="calc-status" id="calc-status">Importe ou adicione painéis para continuar</p>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div id="results" class="results-section">
+
+    <div class="metrics" id="metrics-grid"></div>
+
+    <div class="card section">
+      <div class="results-actions">
+        <button class="btn btn-sm" onclick="exportResults()">
+          <i class="ti ti-download"></i> Exportar resultados (.xlsx)
+        </button>
+      </div>
+
+      <div class="tabs" id="result-tabs">
+        <button class="tab active" onclick="switchResultTab('visual')">Visualização</button>
+        <button class="tab" onclick="switchResultTab('table')">Tacos</button>
+        <button class="tab" onclick="switchResultTab('summary')">Por produto</button>
+      </div>
+
+      <div id="rtab-visual" class="tab-content active">
+        <div id="planks-vis"></div>
+        <div class="legend" id="vis-legend"></div>
+      </div>
+
+      <div id="rtab-table" class="tab-content">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Tábua</th><th>Taco</th><th>Produto</th>
+              <th>Largura (mm)</th><th>Comp. (mm)</th><th>Usa lateral?</th>
+            </tr></thead>
+            <tbody id="cuts-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="rtab-summary" class="tab-content">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Produto</th><th>Largura painel</th><th>Qtd painéis</th>
+              <th>Tábuas usadas</th><th>Mínimo teórico</th><th>Aproveitamento</th>
+            </tr></thead>
+            <tbody id="summary-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>Otimizador de Plano de Corte — algoritmo First Fit Decreasing</footer>
+
+<script>
+  let panels = [];
+  let calcResults = null;
+  let manualRowCount = 0;
+
+  const COLORS = [
+    '#185FA5','#0F6E56','#854F0B','#993556',
+    '#3B6D11','#534AB7','#993C1D','#5F5E5A',
+    '#378ADD','#1D9E75','#BA7517','#D4537E'
+  ];
+
+  /* ─── Tabs ─── */
+  function switchTab(t) {
+    document.querySelectorAll('#input-tabs .tab').forEach((b,i) => {
+      b.classList.toggle('active', (t==='import'&&i===0)||(t==='manual'&&i===1));
+    });
+    document.getElementById('tab-import').classList.toggle('active', t==='import');
+    document.getElementById('tab-manual').classList.toggle('active', t==='manual');
+  }
+
+  function switchResultTab(t) {
+    const ids = ['visual','table','summary'];
+    document.querySelectorAll('#result-tabs .tab').forEach((b,i) => {
+      b.classList.toggle('active', ids[i]===t);
+    });
+    ids.forEach(id => {
+      document.getElementById('rtab-'+id).classList.toggle('active', id===t);
+    });
+  }
+
+  /* ─── Manual rows ─── */
+  function addManualRow() {
+    manualRowCount++;
+    const id = manualRowCount;
+    const row = document.createElement('div');
+    row.id = 'mrow-'+id;
+    row.className = 'manual-grid';
+    row.innerHTML = `
+      <input type="text" placeholder="Nome do produto" oninput="readManual()">
+      <input type="number" placeholder="ex: 290" oninput="readManual()">
+      <input type="number" placeholder="ex: 410" oninput="readManual()">
+      <input type="number" placeholder="1" value="1" min="1" oninput="readManual()">
+      <button class="btn btn-sm" onclick="removeManualRow(${id})" title="Remover">
+        <i class="ti ti-trash"></i>
+      </button>
+    `;
+    document.getElementById('manual-rows').appendChild(row);
+    readManual();
+  }
+
+  function removeManualRow(id) {
+    const el = document.getElementById('mrow-'+id);
+    if (el) el.remove();
+    readManual();
+  }
+
+  function readManual() {
+    const rows = document.querySelectorAll('[id^="mrow-"]');
+    panels = [];
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const name = inputs[0].value.trim() || 'Painel';
+      const w = parseFloat(inputs[1].value);
+      const l = parseFloat(inputs[2].value);
+      const qty = parseInt(inputs[3].value) || 1;
+      if (w > 0 && l > 0) {
+        for (let i = 0; i < qty; i++)
+          panels.push({ produto: name, largura_painel: w, comprimento_painel: l });
+      }
+    });
+    updateCalcBtn();
+  }
+
+  /* ─── File import ─── */
+  document.getElementById('file-input').addEventListener('change', e => {
+    if (e.target.files[0]) processFile(e.target.files[0]);
+  });
+
+  const dz = document.getElementById('drop-zone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
+  });
+
+  function processFile(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'binary' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        if (!data.length) { alert('Arquivo vazio ou sem dados.'); return; }
+
+        const rawCols = Object.keys(data[0]);
+        const normCols = rawCols.map(c => c.toLowerCase().trim().replace(/\s+/g,'_'));
+        const remap = {};
+        rawCols.forEach((orig, i) => { remap[orig] = normCols[i]; });
+
+        const mapped = data.map(row => {
+          const r = {};
+          Object.keys(row).forEach(k => { r[remap[k]] = row[k]; });
+          return r;
+        });
+
+        const wCol = normCols.find(c => c.includes('largura'));
+        const lCol = normCols.find(c => c.includes('comp'));
+        const pCol = normCols.find(c => c.includes('prod') || c.includes('nome') || c.includes('item'));
+        const qCol = normCols.find(c => c.includes('qtd') || c.includes('quant'));
+
+        panels = [];
+        mapped.forEach(row => {
+          const w = parseFloat(row[wCol]);
+          const l = parseFloat(row[lCol]);
+          const qty = parseInt(row[qCol]) || 1;
+          const name = (pCol ? row[pCol] : '') || 'Painel';
+          if (w > 0 && l > 0) {
+            for (let q = 0; q < qty; q++)
+              panels.push({ produto: String(name), largura_painel: w, comprimento_painel: l });
+          }
+        });
+
+        showPreview(data);
+        updateCalcBtn();
+      } catch (err) {
+        alert('Erro ao ler arquivo: ' + err.message);
+      }
+    };
+    reader.readAsBinaryString(file);
+  }
+
+  function showPreview(data) {
+    const area = document.getElementById('preview-area');
+    area.style.display = 'block';
+    const head = document.getElementById('preview-head');
+    const body = document.getElementById('preview-body');
+    head.innerHTML = Object.keys(data[0]).map(k => `<th>${k}</th>`).join('');
+    body.innerHTML = data.slice(0, 6).map(row =>
+      `<tr>${Object.values(row).map(v => `<td>${v}</td>`).join('')}</tr>`
+    ).join('');
+    const extra = data.length - 6;
+    if (extra > 0)
+      body.innerHTML += `<tr><td colspan="${Object.keys(data[0]).length}" style="color:var(--text-ter);font-style:italic">… e mais ${extra} linhas</td></tr>`;
+  }
+
+  function updateCalcBtn() {
+    const btn = document.getElementById('calc-btn');
+    const st = document.getElementById('calc-status');
+    if (panels.length > 0) {
+      btn.disabled = false;
+      st.textContent = `${panels.length} painel(s) pronto(s) para calcular`;
+    } else {
+      btn.disabled = true;
+      st.textContent = 'Importe ou adicione painéis para continuar';
+    }
+  }
+
+  function downloadTemplate() {
+    const ws = XLSX.utils.aoa_to_sheet([
+      ['produto', 'largura_painel', 'comprimento_painel', 'espessura', 'qtd'],
+      ['Painel frente gaveta',    290, 410, 18, 4],
+      ['Tampa superior',          350, 600, 18, 2],
+      ['Lateral armário',         290, 800, 18, 6],
+      ['Fundo gaveta',            280, 400, 15, 8],
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Painéis');
+    XLSX.writeFile(wb, 'modelo_corte.xlsx');
+  }
+
+  /* ─── Algoritmo de corte ─── */
+  function calculate() {
+    const kerf    = parseFloat(document.getElementById('saw-kerf').value)  || 3;
+    const sideCut = parseFloat(document.getElementById('side-cut').value)  || 3;
+    const plankW  = parseFloat(document.getElementById('plank-w').value)   || 101.6;
+    const plankL  = parseFloat(document.getElementById('plank-l').value)   || 2600;
+
+    const usableW = plankW - 2 * sideCut;
+
+    calcResults = optimizeCuts(panels, plankW, usableW, plankL, kerf);
+    renderResults(calcResults, plankW, usableW, kerf);
+
+    const el = document.getElementById('results');
+    el.classList.add('visible');
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function optimizeCuts(panels, plankW, usableW, plankL, kerf) {
+    // First Fit Decreasing: ordena da maior para menor largura
+    const sorted = [...panels].sort((a, b) => b.largura_painel - a.largura_painel);
+    const planks = [];
+
+    for (const panel of sorted) {
+      const pw = panel.largura_painel;
+
+      if (pw > usableW) {
+        planks.push({
+          cuts: [{ panel, width: pw, usesEdge: true, isError: true }],
+          usedWidth: pw, remainW: 0, plankW, usableW, plankL
+        });
+        continue;
+      }
+
+      let placed = false;
+      for (const plank of planks) {
+        if (plank.plankL < panel.comprimento_painel) continue;
+        const neededW = plank.cuts.length === 0 ? pw : pw + kerf;
+        if (plank.remainW >= neededW) {
+          plank.cuts.push({ panel, width: pw, usesEdge: plank.cuts.length === 0 });
+          plank.usedWidth += neededW;
+          plank.remainW  -= neededW;
+          placed = true;
+          break;
+        }
+      }
+
+      if (!placed) {
+        planks.push({
+          cuts: [{ panel, width: pw, usesEdge: true }],
+          usedWidth: pw,
+          remainW: usableW - pw,
+          plankW, usableW, plankL
+        });
+      }
+    }
+    return planks;
+  }
+
+  /* ─── Renderização ─── */
+  function buildColorMap(planks) {
+    const map = {};
+    let idx = 0;
+    planks.forEach(p => p.cuts.forEach(c => {
+      if (!map[c.panel.produto]) map[c.panel.produto] = COLORS[idx++ % COLORS.length];
+    }));
+    return map;
+  }
+
+  function renderResults(planks, plankW, usableW, kerf) {
+    const totalPlanks = planks.length;
+    const totalCuts   = planks.reduce((s, p) => s + p.cuts.length, 0);
+    const totalUsed   = planks.reduce((s, p) => s + p.usedWidth, 0);
+    const totalAvail  = planks.reduce((s, p) => s + p.usableW, 0);
+    const pct         = totalAvail > 0 ? totalUsed / totalAvail * 100 : 0;
+    const waste       = totalAvail - totalUsed;
+
+    document.getElementById('metrics-grid').innerHTML = `
+      <div class="metric">
+        <div class="metric-label">Tábuas necessárias</div>
+        <div class="metric-val">${totalPlanks}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total de tacos</div>
+        <div class="metric-val">${totalCuts}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Aproveitamento</div>
+        <div class="metric-val">${pct.toFixed(1)}%</div>
+        <div class="metric-sub">${(100-pct).toFixed(1)}% de perda</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Perda acumulada</div>
+        <div class="metric-val">${waste.toFixed(0)} mm</div>
+        <div class="metric-sub">em largura total</div>
+      </div>
+    `;
+
+    const colorMap = buildColorMap(planks);
+    renderVisual(planks, plankW, usableW, kerf, colorMap);
+    renderCutsTable(planks, kerf);
+    renderSummary(planks, usableW);
+  }
+
+  function renderVisual(planks, plankW, usableW, kerf, colorMap) {
+    const container  = document.getElementById('planks-vis');
+    const legend     = document.getElementById('vis-legend');
+    container.innerHTML = '';
+    legend.innerHTML = '';
+
+    const maxW    = Math.min(container.offsetWidth || 700, 700);
+    const scale   = maxW / plankW;
+    const barH    = 38;
+    const sidePx  = Math.round(3 * scale);
+    const kerfPx  = Math.max(Math.round(kerf * scale), 1);
+
+    planks.forEach((plank, pi) => {
+      const row = document.createElement('div');
+      row.className = 'plank-row';
+
+      const lbl = document.createElement('div');
+      lbl.className = 'plank-label';
+      lbl.textContent = `Tábua ${pi + 1}`;
+      row.appendChild(lbl);
+
+      const svgW = Math.round(plankW * scale);
+      const svgH = barH + 18;
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', svgW);
+      svg.setAttribute('height', svgH);
+      svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', `Tábua ${pi+1} com ${plank.cuts.length} taco(s)`);
+
+      // Fundo tábua
+      const bg = ns('rect', { x:0, y:0, width:svgW, height:barH, fill:'#D3D1C7', rx:4 });
+      svg.appendChild(bg);
+
+      // Laterais cortadas (cinza escuro)
+      svg.appendChild(ns('rect', { x:0, y:0, width:Math.max(sidePx,2), height:barH, fill:'#888780', rx:4 }));
+      svg.appendChild(ns('rect', { x:svgW-Math.max(sidePx,2), y:0, width:Math.max(sidePx,2), height:barH, fill:'#888780' }));
+
+      let x = sidePx;
+
+      plank.cuts.forEach((cut, ci) => {
+        if (ci > 0) {
+          svg.appendChild(ns('rect', { x, y:0, width:kerfPx, height:barH, fill:'#5F5E5A' }));
+          x += kerfPx;
+        }
+        const wPx  = Math.max(Math.round(cut.width * scale), 2);
+        const color = cut.isError ? '#E24B4A' : (colorMap[cut.panel.produto] || '#378ADD');
+
+        svg.appendChild(ns('rect', { x, y:2, width:wPx-1, height:barH-4, fill:color, rx:3, opacity:0.88 }));
+
+        if (wPx > 28) {
+          const t = ns('text', {
+            x: x + (wPx-1)/2, y: barH/2+5,
+            'text-anchor':'middle', fill:'#fff',
+            'font-size':'10', 'font-weight':'500', 'font-family':'sans-serif'
+          });
+          t.textContent = cut.width.toFixed(1);
+          svg.appendChild(t);
+        }
+
+        if (wPx > 18) {
+          const lbl = ns('text', {
+            x: x + (wPx-1)/2, y: barH+13,
+            'text-anchor':'middle', fill:'#888780',
+            'font-size':'9', 'font-family':'sans-serif'
+          });
+          lbl.textContent = (cut.panel.produto||'').substring(0, 9);
+          svg.appendChild(lbl);
+        }
+        x += wPx;
+      });
+
+      const rightEdge = svgW - sidePx;
+      const wastePx = rightEdge - x;
+      if (wastePx > 2) {
+        svg.appendChild(ns('rect', { x, y:2, width:wastePx, height:barH-4, fill:'#F09595', rx:2, opacity:0.55 }));
+        if (wastePx > 24) {
+          const wt = ns('text', {
+            x: x + wastePx/2, y: barH/2+5,
+            'text-anchor':'middle', fill:'#A32D2D',
+            'font-size':'9', 'font-weight':'500', 'font-family':'sans-serif'
+          });
+          wt.textContent = plank.remainW.toFixed(0)+'mm';
+          svg.appendChild(wt);
+        }
+      }
+
+      row.appendChild(svg);
+      container.appendChild(row);
+    });
+
+    // Legenda
+    Object.entries(colorMap).forEach(([prod, col]) => {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `<span class="legend-swatch" style="background:${col}"></span>${prod}`;
+      legend.appendChild(item);
+    });
+
+    const wItem = document.createElement('div');
+    wItem.className = 'legend-item';
+    wItem.innerHTML = `<span class="legend-swatch" style="background:#F09595;border:1px solid #E24B4A"></span>Desperdício`;
+    legend.appendChild(wItem);
+
+    const kerf_v = document.getElementById('saw-kerf').value;
+    const kItem = document.createElement('div');
+    kItem.className = 'legend-item';
+    kItem.innerHTML = `<span class="legend-swatch" style="background:#5F5E5A"></span>Serra (${kerf_v}mm)`;
+    legend.appendChild(kItem);
+
+    const edgeItem = document.createElement('div');
+    edgeItem.className = 'legend-item';
+    edgeItem.innerHTML = `<span class="legend-swatch" style="background:#888780"></span>Lateral cortada`;
+    legend.appendChild(edgeItem);
+  }
+
+  function ns(tag, attrs) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    return el;
+  }
+
+  function renderCutsTable(planks, kerf) {
+    const body = document.getElementById('cuts-body');
+    body.innerHTML = '';
+    planks.forEach((plank, pi) => {
+      plank.cuts.forEach((cut, ci) => {
+        const tr = document.createElement('tr');
+        const edgeBadge = cut.usesEdge
+          ? `<span class="badge badge-ok">sim</span>`
+          : `<span class="badge badge-neutral">não</span>`;
+        tr.innerHTML = `
+          <td>${pi+1}</td>
+          <td>${ci+1}</td>
+          <td>${cut.panel.produto}${cut.isError ? ' <span class="badge badge-bad">excede largura!</span>' : ''}</td>
+          <td>${cut.width.toFixed(1)}</td>
+          <td>${cut.panel.comprimento_painel}</td>
+          <td>${edgeBadge}</td>
+        `;
+        body.appendChild(tr);
+      });
+      if (plank.remainW > 0.5) {
+        const tr = document.createElement('tr');
+        tr.style.opacity = '0.45';
+        tr.innerHTML = `
+          <td>${pi+1}</td><td>—</td>
+          <td style="font-style:italic">Desperdício</td>
+          <td>${plank.remainW.toFixed(1)}</td><td>—</td><td>—</td>
+        `;
+        body.appendChild(tr);
+      }
+    });
+  }
+
+  function renderSummary(planks, usableW) {
+    const body = document.getElementById('summary-body');
+    body.innerHTML = '';
+    const byProd = {};
+
+    planks.forEach((plank, pi) => {
+      plank.cuts.forEach(cut => {
+        const k = cut.panel.produto + '__' + cut.panel.largura_painel;
+        if (!byProd[k]) byProd[k] = { produto: cut.panel.produto, largura: cut.panel.largura_painel, count: 0, planksSet: new Set() };
+        byProd[k].count++;
+        byProd[k].planksSet.add(pi);
+      });
+    });
+
+    Object.values(byProd).forEach(p => {
+      const planksUsed   = p.planksSet.size;
+      const planksNeeded = Math.ceil(p.count * p.largura / usableW);
+      const eff = Math.min(100, planksNeeded / planksUsed * 100);
+      const badge = eff >= 80 ? 'badge-ok' : eff >= 55 ? 'badge-warn' : 'badge-bad';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.produto}</td>
+        <td>${p.largura.toFixed(1)} mm</td>
+        <td>${p.count}</td>
+        <td>${planksUsed}</td>
+        <td>${planksNeeded}</td>
+        <td><span class="badge ${badge}">${eff.toFixed(0)}%</span></td>
+      `;
+      body.appendChild(tr);
+    });
+  }
+
+  /* ─── Exportar resultados ─── */
+  function exportResults() {
+    if (!calcResults) return;
+
+    const kerf    = parseFloat(document.getElementById('saw-kerf').value);
+    const sideCut = parseFloat(document.getElementById('side-cut').value);
+    const plankW  = parseFloat(document.getElementById('plank-w').value);
+
+    const rows = [['Tábua','Taco','Produto','Largura (mm)','Comprimento (mm)','Usa lateral?','Observação']];
+    calcResults.forEach((plank, pi) => {
+      plank.cuts.forEach((cut, ci) => {
+        rows.push([
+          pi+1, ci+1,
+          cut.panel.produto,
+          cut.width.toFixed(2),
+          cut.panel.comprimento_painel,
+          cut.usesEdge ? 'Sim' : 'Não',
+          cut.isError ? 'EXCEDE LARGURA DA TÁBUA' : ''
+        ]);
+      });
+      if (plank.remainW > 0.5)
+        rows.push([pi+1, '—', 'Desperdício', plank.remainW.toFixed(2), '—', '—', '']);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [10,8,22,14,16,14,28].map(w=>({wch:w}));
+
+    const totalUsed  = calcResults.reduce((s,p)=>s+p.usedWidth,0);
+    const totalAvail = calcResults.reduce((s,p)=>s+p.usableW,0);
+    const pct = totalAvail>0 ? (totalUsed/totalAvail*100).toFixed(1) : '0';
+
+    const resumo = [
+      ['Parâmetro','Valor'],
+      ['Tábuas utilizadas', calcResults.length],
+      ['Total de tacos', calcResults.reduce((s,p)=>s+p.cuts.length,0)],
+      ['Aproveitamento (%)', pct],
+      ['Constante de serra (mm)', kerf],
+      ['Recorte lateral (mm)', sideCut],
+      ['Largura da tábua (mm)', plankW],
+    ];
+    const wsR = XLSX.utils.aoa_to_sheet(resumo);
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Plano de Corte');
+    XLSX.utils.book_append_sheet(wb, wsR, 'Resumo');
+    XLSX.writeFile(wb, 'plano_de_corte.xlsx');
+  }
+
+  /* ─── Init ─── */
+  addManualRow();
+</script>
+</body>
+</html>
